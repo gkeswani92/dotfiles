@@ -1,0 +1,53 @@
+[user]
+  name = Gaurav Keswani
+  email = gaurav.keswani@shopify.com
+
+[filter "lfs"]
+  required = true
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+
+[core]
+  commitGraph = true
+  editor = vim
+
+[diff]
+  algorithm = patience
+
+[gc]
+  writeCommitGraph = true
+
+[protocol]
+  version = 2
+
+[url "https://github.com/Shopify/"]
+  insteadOf = git@github.com:Shopify/
+  insteadOf = git@github.com:shopify/
+  insteadOf = ssh://git@github.com/Shopify/
+  insteadOf = ssh://git@github.com/shopify/
+
+[push]
+  default = current
+
+[pull]
+  default = current
+  rebase = true
+
+[alias]
+  branch-name = "!git rev-parse --abbrev-ref HEAD"
+  d = diff
+  dc = diff --cached
+  l = log --oneline
+  latest = log --oneline -1
+  br = branch
+  com = checkout master
+  p = "!git pull origin $(git branch-name)"
+  s = status
+  cm = commit
+  fo = fetch origin
+  re = rebase
+  cp = cherry-pick
+  unstash = stash pop
+  push = "!git push origin $(git branch-name)"
+  pushf = "!git push origin $(git branch-name) --force-with-lease"
