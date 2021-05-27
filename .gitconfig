@@ -51,3 +51,6 @@
   unstash = stash pop
   push = "!git push origin $(git branch-name)"
   pushf = "!git push origin $(git branch-name) --force-with-lease"
+
+[sequence]
+	editor = interactive-rebase-tool

@@ -13,3 +13,7 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:
 
 echo "Creating symlink to .zshrc"
 ln -sf ~/dotfiles/.zshrc ~/.zshrc
+
+echo "Downloading and install the Interactive git rebase tool"
+wget https://github.com/MitMaro/git-interactive-rebase-tool/releases/download/latest/git-interactive-rebase-tool-ubuntu_amd64.deb -P /tmp/
+sudo dpkg -i /tmp/git-interactive-rebase-tool-ubuntu_amd64.deb
