@@ -17,3 +17,8 @@ ln -sf ~/dotfiles/shell/.zshrc ~/.zshrc
 echo "Downloading and install the Interactive git rebase tool"
 wget https://github.com/MitMaro/git-interactive-rebase-tool/releases/download/latest/git-interactive-rebase-tool-ubuntu_amd64.deb -P /tmp/
 sudo dpkg -i /tmp/git-interactive-rebase-tool-ubuntu_amd64.deb
+
+echo "Install Interactive git checkout (and fzf for fuzzy search)"
+sudo apt-get install fzf
+sudo ln -sf ~/dotfiles/git/git-cob /usr/local/bin/git-cob
+sudo chmod 777 /usr/local/bin/git-cob
