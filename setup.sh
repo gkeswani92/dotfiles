@@ -28,3 +28,6 @@ echo "Install Interactive git checkout (and fzf for fuzzy search)"
 sudo apt-get install fzf
 sudo ln -sf ~/dotfiles/git/git-cob /usr/local/bin/git-cob
 sudo chmod 777 /usr/local/bin/git-cob
+
+echo "Installing exa to replace ls"
+sudo apt-get install -y exa
