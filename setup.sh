@@ -1,7 +1,9 @@
 #!/bin/bash
 
+echo "Setting up symlinks to configuration files"
 ln -sf ~/dotfiles/shell/tmux.conf ~/.tmux.conf
 ln -sf ~/dotfiles/git/.gitconfig ~/.gitconfig
+ln -sf ~/dotfiles/ruby/.pryrc ~/.pryrc
 
 echo "Installing Oh My ZSH"
 sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
