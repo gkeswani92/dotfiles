@@ -41,6 +41,9 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+alias style="bin/style --include-branch-commits"
+alias check="bin/style --include-branch-commits;bin/srb typecheck -a"
+alias up="bundle install;bin/rails db:migrate"
 
 # load dev, but only if present and the shell is interactive
 if [[ -f /opt/dev/dev.sh ]] && [[ $- == *i* ]]; then
