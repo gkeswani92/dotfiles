@@ -11,9 +11,11 @@
 [core]
   commitGraph = true
   editor = vim
+  pager = delta
 
 [diff]
   algorithm = patience
+  colorMoved = default
 
 [gc]
   writeCommitGraph = true
@@ -53,4 +55,15 @@
   pushf = "!git push origin $(git branch-name) --force-with-lease"
 
 [sequence]
-	editor = interactive-rebase-tool
+  editor = interactive-rebase-tool
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true  # use n and N to move between diff sections
+  line-numbers = true
+  side-by-side = true
+
+[merge]
+  conflictstyle = diff3

@@ -18,6 +18,10 @@ echo "Downloading and install the Interactive git rebase tool"
 wget https://github.com/MitMaro/git-interactive-rebase-tool/releases/download/latest/git-interactive-rebase-tool-ubuntu_amd64.deb -P /tmp/
 sudo dpkg -i /tmp/git-interactive-rebase-tool-ubuntu_amd64.deb
 
+echo "Downloading and install the delta git diff tool"
+wget https://github.com/dandavison/delta/releases/download/0.12.1/git-delta_0.12.1_amd64.deb -P /tmp/
+sudo dpkg -i /tmp/git-delta_0.12.1_amd64.deb
+
 echo "Install Interactive git checkout (and fzf for fuzzy search)"
 sudo apt-get install fzf
 sudo ln -sf ~/dotfiles/git/git-cob /usr/local/bin/git-cob
