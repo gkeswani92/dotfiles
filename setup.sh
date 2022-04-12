@@ -31,6 +31,3 @@ sudo chmod 777 /usr/local/bin/git-cob
 
 echo "Installing exa to replace ls"
 sudo apt-get install -y exa
-
-echo "Installing starship shell"
-sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -f
