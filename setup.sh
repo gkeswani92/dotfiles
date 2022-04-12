@@ -17,8 +17,8 @@ echo "Creating symlink to .zshrc"
 ln -sf ~/dotfiles/shell/.zshrc ~/.zshrc
 
 echo "Downloading and install the Interactive git rebase tool"
-curl https://github.com/MitMaro/git-interactive-rebase-tool/releases/download/latest/git-interactive-rebase-tool-ubuntu_amd64.deb > git-interactive-rebase-tool-ubuntu_amd64.deb && \
-  sudo dpkg -i /tmp/git-interactive-rebase-tool-ubuntu_amd64.deb
+wget https://github.com/MitMaro/git-interactive-rebase-tool/releases/download/latest/git-interactive-rebase-tool-ubuntu_amd64.deb -P /tmp/
+sudo dpkg -i /tmp/git-interactive-rebase-tool-ubuntu_amd64.deb
 
 echo "Downloading and install the delta git diff tool"
 curl -L https://github.com/dandavison/delta/releases/download/0.12.1/git-delta_0.12.1_amd64.deb > git-delta.deb && \
