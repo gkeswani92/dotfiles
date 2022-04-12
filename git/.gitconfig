@@ -38,19 +38,25 @@
 
 [alias]
   branch-name = "!git rev-parse --abbrev-ref HEAD"
+
   d = diff
   dc = diff --cached
-  l = log --oneline
+
+  log = log --oneline
   latest = log --oneline -1
+
   br = branch
-  com = checkout master
-  p = "!git pull origin $(git branch-name)"
+  com = checkout main
   s = status
   cm = commit
   fo = fetch origin
   re = rebase
   cp = cherry-pick
-  unstash = stash pop
+
+  gs = "git stash"
+  unstash = "git stash pop"
+
+  pull = "!git pull origin $(git branch-name)"
   push = "!git push origin $(git branch-name)"
   pushf = "!git push origin $(git branch-name) --force-with-lease"
 
