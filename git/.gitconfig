@@ -37,19 +37,36 @@
 
 [alias]
   branch-name = "!git rev-parse --abbrev-ref HEAD"
+  hist = log --graph --abbrev-commit --pretty=format:'%C(red)%h%C(reset) - %s %C(green)(%cr) %C(blue)<%an>%C(magenta)%d%C(reset)'
+  graph = log --graph -9 --branches --remotes --tags  --format=format:'%Cgreen%h %Creset• %<(75,trunc)%s (%cN, %cr) %Cred%d' --date-order
 
+  # show difference between the HEAD and the index
   d = diff
   dc = diff --cached
+  ds = diff --staged
+  staged = diff --cached
+  unstaged = diff
 
+  # git logs
+  l = log
   log = log --oneline
   latest = log --oneline -1
+  oneline = log --pretty=format:\"%h %ad%x20%s%x20%x28%an%x29\" --date=short
+  current = log --pretty=format:'%ad %h %d' --abbrev-commit --date=short -1
+  cur = log --pretty=format:'%ad %h %d' --abbrev-commit --date=short -1
 
   br = branch
+
+  co = checkout
   com = checkout main
-  s = status
+
+  st = status
+
   cm = commit
   fo = fetch origin
+
   re = rebase
+
   cp = cherry-pick
 
   gs = "git stash"
