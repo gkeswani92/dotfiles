@@ -43,6 +43,8 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias style="bundle exec rubocop -A"
 alias up="bundle install; bin/rails db:migrate"
+alias console="bin/rails console"
+
 # alias ls="exa --long --header"
 
 # load dev, but only if present and the shell is interactive
