@@ -55,3 +55,5 @@ fi
 if ! [ $SPIN ]; then
   if [ -e /Users/gaurav/.nix-profile/etc/profile.d/nix.sh ]; then . /Users/gaurav/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
 fi
+
+echo "Reminder: use 'bt' in pry to print filtered backtrace."

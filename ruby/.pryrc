@@ -14,6 +14,13 @@ unless ENV['PRY_BW']
   Pry.config.prompt ||= Pry.prompt
 end
 
+# == CLEANER STACKTRACE
+def bt
+  caller.select do |line|
+    line.start_with?("/home/spin/src/github.com/Shopify/shopify/components") && !line.include?("/instrumentation/")
+  end
+end
+
 # === HISTORY ===
 Pry.config.history.should_save = true
 Pry::Commands.command /^$/, "repeat last command" do
