@@ -31,3 +31,6 @@ sudo apt-get install -y fzf && \
 
 echo "Installing exa to replace ls"
 sudo apt-get install -y exa
+
+echo "Install Github Copilot CLI"
+gh extension install github/gh-copilot
