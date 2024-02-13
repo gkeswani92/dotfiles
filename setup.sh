@@ -16,6 +16,9 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:
 echo "Creating symlink to .zshrc"
 ln -sf ~/dotfiles/shell/.zshrc ~/.zshrc
 
+echo "Install git-absorb to easily rebase and squash fixup commits"
+sudo apt install git-absorb 
+
 echo "Downloading and install the Interactive git rebase tool"
 wget https://github.com/MitMaro/git-interactive-rebase-tool/releases/download/2.3.0/git-interactive-rebase-tool-2.3.0-ubuntu-22.04_amd64.deb -P /tmp/
 sudo dpkg -i /tmp/git-interactive-rebase-tool-2.3.0-ubuntu-22.04_amd64.deb
