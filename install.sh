@@ -1,6 +1,6 @@
 #/bin/bash
 
-# The -e option instructs the shell to exit immediately if any command it executes fails 
+# The -e option instructs the shell to exit immediately if any command it executes fails
 # (returns a non-zero status).
 set -e
 
@@ -20,9 +20,10 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
 fi
 
 echo "✅ Installing Oh My ZSH custom plugins"
-git clone https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:=$HOME/.oh-my-zsh/custom}/plugins/zsh-completions
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+ZSH_CUSTOM=${ZSH_CUSTOM:=$HOME/.oh-my-zsh/custom}
+[ ! -d "$ZSH_CUSTOM/plugins/zsh-completions" ] && git clone https://github.com/zsh-users/zsh-completions $ZSH_CUSTOM/plugins/zsh-completions
+[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ] && git clone https://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/zsh-autosuggestions
+[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] && git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
 
 echo "✅ Install custom git scripts"
 sudo cp -r $DOTFILES_PATH/git/scripts/* /usr/local/bin/
@@ -34,7 +35,7 @@ sudo dpkg -i $DOTFILES_PATH/git/plugins/*.deb
 echo "✅ Install remote plugins (git-absorb, gh-copilot, exa)"
 sudo apt-get install -y fzf
 sudo apt-get install -y exa
-sudo apt install -y git-absorb 
+sudo apt install -y git-absorb
 
 echo "✅ Creating symlinks to dotfiles"
 ln -sf $DOTFILES_PATH/git/.gitconfig ~/.gitconfig
@@ -49,5 +50,3 @@ if command -v gh >/dev/null 2>&1; then
 else
   echo "gh is not installed"
 fi
-
-
