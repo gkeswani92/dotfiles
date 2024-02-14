@@ -54,24 +54,15 @@
   oneline = log --pretty=format:\"%h %ad%x20%s%x20%x28%an%x29\" --date=short
   current = log --pretty=format:'%ad %h %d' --abbrev-commit --date=short -1
   cur = log --pretty=format:'%ad %h %d' --abbrev-commit --date=short -1
-
   br = branch
-
   co = checkout
   com = checkout main
-
   st = status
-
   cm = commit
   fo = fetch origin
-
-  re = rebase
-
   cp = cherry-pick
-
   gs = "git stash"
   unstash = "git stash pop"
-
   pull = "!git pull origin $(git branch-name)"
   push = "!git push origin $(git branch-name)"
   pushf = "!git push origin $(git branch-name) --force-with-lease"
