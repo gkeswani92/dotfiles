@@ -34,7 +34,7 @@ sudo dpkg -i $DOTFILES_PATH/git/plugins/*.deb
 echo "✅ Install remote plugins (git-absorb, gh-copilot, exa)"
 sudo apt-get install -y fzf
 sudo apt-get install -y exa
-sudo apt install git-absorb 
+sudo apt install -y git-absorb 
 
 echo "✅ Creating symlinks to dotfiles"
 ln -sf $DOTFILES_PATH/git/.gitconfig ~/.gitconfig
