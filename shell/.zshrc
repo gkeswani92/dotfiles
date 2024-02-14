@@ -1,4 +1,4 @@
-# If you come from bash you might have to change your $PATH.
+# [Shopify] If you come from bash you might have to change your $PATH.
 if ! [ $SPIN ]; then
   export PATH=$HOME/bin:/usr/local/bin:$PATH
   export PATH=/usr/local/share/chruby:$PATH
@@ -8,7 +8,7 @@ fi
 if [ $SPIN ]; then
   export ZSH="/home/spin/.oh-my-zsh"
 else
-  export ZSH="/Users/gaurav/.oh-my-zsh"
+  export ZSH="$HOME/.oh-my-zsh"
 fi
 
 # Set name of the theme to load --- if set to "random", it will
@@ -41,19 +41,9 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias style="bundle exec rubocop -A"
-alias up="bundle install; bin/rails db:migrate"
-alias console="bin/rails console"
-
 # alias ls="exa --long --header"
 
-# load dev, but only if present and the shell is interactive
+# [Shopify] Load dev but only if present and the shell is interactive
 if [[ -f /opt/dev/dev.sh ]] && [[ $- == *i* ]]; then
   source /opt/dev/dev.sh
 fi
-
-if ! [ $SPIN ]; then
-  if [ -e /Users/gaurav/.nix-profile/etc/profile.d/nix.sh ]; then . /Users/gaurav/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
-fi
-
-echo "Reminder: use 'bt' in pry to print filtered backtrace."
