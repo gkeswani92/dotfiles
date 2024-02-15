@@ -44,6 +44,10 @@ else
   sudo apt install -y git-absorb
 fi
 
+echo "✅ Install vim plugins and colors"
+mkdir -p $HOME/.vim/colors
+cp $DOTFILES_PATH/vim/colors/* $HOME/.vim/colors/
+
 echo "✅ Creating symlinks to dotfiles"
 ln -sf $DOTFILES_PATH/git/.gitconfig ~/.gitconfig
 ln -sf $DOTFILES_PATH/ruby/.pryrc ~/.pryrc
