@@ -1,3 +1,5 @@
+export DOTFILES_PATH=$HOME/dotfiles
+
 # [Shopify] If you come from bash you might have to change your $PATH.
 if ! [ $SPIN ]; then
   export PATH=$HOME/bin:/usr/local/bin:$PATH
