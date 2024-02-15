@@ -34,9 +34,15 @@ echo "✅ Install local git plugins (like interactive rebase, delta)"
 sudo dpkg -i $DOTFILES_PATH/git/plugins/*.deb
 
 echo "✅ Install remote plugins (git-absorb, gh-copilot, exa)"
-sudo apt-get install -y fzf
-sudo apt-get install -y exa
-sudo apt install -y git-absorb
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  brew install fzf
+  brew install eza
+  brew install git-absorb
+else
+  sudo apt-get install -y fzf
+  sudo apt-get install -y exa
+  sudo apt install -y git-absorb
+fi
 
 echo "✅ Creating symlinks to dotfiles"
 ln -sf $DOTFILES_PATH/git/.gitconfig ~/.gitconfig
