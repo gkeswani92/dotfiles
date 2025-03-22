@@ -31,7 +31,12 @@ sudo cp -r $DOTFILES_PATH/git/scripts/* /usr/local/bin/
 sudo chmod 777 /usr/local/bin/git-cob
 
 echo "✅ Install local git plugins (like interactive rebase, delta)"
-sudo dpkg -i $DOTFILES_PATH/git/plugins/*.deb
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  brew install git-interactive-rebase-tool
+  brew install git-delta
+else
+  sudo dpkg -i $DOTFILES_PATH/git/plugins/*.deb
+fi
 
 echo "✅ Install remote plugins (git-absorb, gh-copilot, exa)"
 if [[ "$OSTYPE" == "darwin"* ]]; then
