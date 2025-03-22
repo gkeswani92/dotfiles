@@ -30,10 +30,6 @@ echo "✅ Install custom git scripts"
 sudo cp -r $DOTFILES_PATH/git/scripts/* /usr/local/bin/
 sudo chmod 777 /usr/local/bin/git-cob
 
-echo "✅ Installing Spin Cursor extension"
-sudo chmod +x $DOTFILES_PATH/cursor/install-spin-cursor-extension
-$DOTFILES_PATH/cursor/install-spin-cursor-extension
-
 echo "✅ Install local git plugins (like interactive rebase, delta)"
 sudo dpkg -i $DOTFILES_PATH/git/plugins/*.deb
 
