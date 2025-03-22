@@ -2,12 +2,6 @@
   name = Gaurav Keswani
   email = gaurav.keswani@shopify.com
 
-[filter "lfs"]
-  required = true
-  clean = git-lfs clean -- %f
-  smudge = git-lfs smudge -- %f
-  process = git-lfs filter-process
-
 [core]
   commitGraph = true
   editor = vim
@@ -80,3 +74,15 @@
 
 [merge]
   conflictstyle = diff3
+
+# Dev related config
+[include]
+	path = /Users/gaurav/.config/dev/gitconfig
+
+[maintenance]
+	repo = /Users/gaurav/world/trees/root/src
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
