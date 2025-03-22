@@ -34,6 +34,7 @@ plugins=(
   zsh-autosuggestions
   zsh-syntax-highlighting
   zsh-history-substring-search
+  fzf-tab
 )
 
 source $ZSH/oh-my-zsh.sh
