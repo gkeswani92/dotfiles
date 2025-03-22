@@ -59,8 +59,8 @@ ln -sf $DOTFILES_PATH/ruby/.pryrc ~/.pryrc
 ln -sf $DOTFILES_PATH/shell/tmux.conf ~/.tmux.conf
 ln -sf $DOTFILES_PATH/shell/.zshrc ~/.zshrc
 ln -sf $DOTFILES_PATH/vim/.vimrc ~/.vimrc
-ln -sf $DOTFILES_PATH/local-development/zellij/bp-full.kdl ~/.config/zellij/layouts/bp-full.kdl
-ln -sf $DOTFILES_PATH/local-development/zellij/bp-orgs-only.kdl ~/.config/zellij/layouts/bp-orgs-only.kdl
+ln -sf $DOTFILES_PATH/local-development/zellij/bp-full.kdl ~/.config/zellij/bp-full.kdl
+ln -sf $DOTFILES_PATH/local-development/zellij/bp-orgs-only.kdl ~/.config/zellij/bp-orgs-only.kdl
 
 echo "✅Install Github Copilot CLI"
 if command -v gh >/dev/null 2>&1; then
