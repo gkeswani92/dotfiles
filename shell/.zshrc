@@ -73,3 +73,5 @@ autoload -Uz compinit && compinit
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 # alias ls="exa --long --header"
+alias bp-full-local-dev="zellij --layout  ~/.config/zellij/bp-full.kdl"
+alias bp-orgs-only-dev="zellij --layout ~/.config/zellij/bp-orgs-only.kdl"
