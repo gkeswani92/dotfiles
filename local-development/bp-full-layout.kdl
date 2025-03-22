@@ -1,0 +1,43 @@
+layout {
+  pane split_direction="vertical" {
+      pane name="identity" command="zsh" {
+          args "-i" "-c" "dev cd identity && git pull && dev up && dev server"
+      }
+      pane name="business-platform" focus=true command="zsh" start_suspended=true {
+          args "-i" "-c" "dev cd business-platform && touch tmp/caching-dev.txt && git pull && PRE_CONTRACT=1 dev up && dev server"
+      }
+      pane name="billing" command="zsh" start_suspended=true {
+          args "-i" "-c" "dev cd world && cd areas/platforms/billing && dev up && dev server"
+      }      
+  }
+  pane split_direction="vertical" {
+      pane name="core" command="zsh" start_suspended=true {
+          args "-i" "-c" "dev cd shopify && dev up && dev server"
+      }
+      pane name="core hedwig worker" command="zsh" start_suspended=true {
+          args "-i" "-c" "dev cd shopify && dev hedwig enqueuer"
+      }
+      pane name="core hedwig worker" command="zsh" start_suspended=true {
+          args "-i" "-c" "dev cd shopify && dev hedwig worker 2"
+      }
+      pane name="web" command="zsh" start_suspended=true {
+          args "-i" "-c" "dev cd admin-web && dev up && LOCAL_IDENTITY=true dev server"
+      }
+  }
+  pane split_direction="vertical" {
+      pane name="services" command="zsh" {
+          args "-i" "-c" "while sleep 15; do clear; dev ps --all-namespaces --procs; done"
+      }
+      pane name="seeding" command="zsh" start_suspended=true {
+          args "-i" "-c" "dev cd shopify && for key in business-platform-dev-api-key development-shopify-flow-key plus-store-operations-key plus-business-key development-home-key; do bundle exec rails dev:create_apps API_KEY=$key; done;"
+      }
+      pane command="zsh" {}
+  }
+  pane size=2 borderless=true {
+      plugin location="zellij:status-bar"
+  }
+}
+
+// Text is copied automatically when selecting it within a pane
+copy_command "pbcopy"
+

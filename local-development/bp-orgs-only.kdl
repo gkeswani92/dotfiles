@@ -1,0 +1,29 @@
+layout {
+  pane split_direction="vertical" {
+      pane name="identity" command="zsh" {
+          args "-i" "-c" "dev cd identity && git pull && dev up && dev server"
+      }
+      pane name="business-platform" focus=true command="zsh" {
+          args "-i" "-c" "dev cd business-platform && git pull && dev up && dev server"
+      }
+        
+  }
+  pane split_direction="vertical" {
+      pane name="web" command="zsh" start_suspended=true {
+          args "-i" "-c" "dev cd admin-web && dev up && LOCAL_IDENTITY=true dev server"
+      }
+      pane name="services" command="zsh" {
+          args "-i" "-c" "while sleep 15; do clear; dev ps --all-namespaces --procs; done"
+      }  
+  }
+  pane split_direction="vertical" {
+      pane command="zsh" {}
+  }
+  pane size=2 borderless=true {
+      plugin location="zellij:status-bar"
+  }
+}
+
+// Text is copied automatically when selecting it within a pane
+copy_command "pbcopy"
+
