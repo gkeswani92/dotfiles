@@ -76,3 +76,13 @@ autoload -Uz compinit && compinit
 # alias ls="exa --long --header"
 alias bp-full-local-dev="zellij --layout  ~/.config/zellij/bp-full.kdl"
 alias bp-orgs-only-dev="zellij --layout ~/.config/zellij/bp-orgs-only.kdl"
+
+# Potentially dev related commands that were added to the dotfiles
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+[[ -f /opt/dev/sh/chruby/chruby.sh ]] && { type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; } }
+[[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
