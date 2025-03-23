@@ -61,8 +61,20 @@ echo "Installing Git tools (interactive rebase, delta for better diffs)"
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS installation using Homebrew
   echo "Using Homebrew for macOS installations"
-  brew install git-interactive-rebase-tool
-  brew install git-delta
+  
+  # Function to check if a brew package is installed
+  brew_install_if_needed() {
+    if brew list "$1" &>/dev/null; then
+      echo "✅ $1 is already installed, skipping..."
+    else
+      echo "Installing $1..."
+      brew install "$1"
+    fi
+  }
+  
+  # Install Git tools
+  brew_install_if_needed git-interactive-rebase-tool
+  brew_install_if_needed git-delta
 else
   # Linux installation using dpkg
   echo "Using dpkg for Linux installations"
@@ -78,10 +90,12 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "  - eza (modern ls replacement)"
   echo "  - git-absorb (automatically create fixup commits)"
   echo "  - zellij (terminal multiplexer)"
-  brew install fzf
-  brew install eza
-  brew install git-absorb
-  brew install zellij
+  
+  # Install tools using our helper function
+  brew_install_if_needed fzf
+  brew_install_if_needed eza
+  brew_install_if_needed git-absorb
+  brew_install_if_needed zellij
 else
   # Linux tools
   echo "Installing command-line tools via apt:"

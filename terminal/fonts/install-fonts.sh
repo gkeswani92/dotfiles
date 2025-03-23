@@ -8,23 +8,24 @@ echo "✅ Installing developer fonts with ligatures"
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS installation using Homebrew
   
-  # Install fonts directly (no need for tap anymore)
+  # Helper function to check if a font cask is installed and install if needed
+  brew_cask_install_if_needed() {
+    local font_name=$1
+    local font_cask=$2
+    
+    if brew list --cask "$font_cask" &>/dev/null; then
+      echo "✅ $font_name already installed, skipping..."
+    else
+      echo "Installing $font_name..."
+      brew install --cask "$font_cask"
+    fi
+  }
   
-  # Install JetBrains Mono Nerd Font (includes ligatures and icons)
-  echo "Installing JetBrains Mono Nerd Font..."
-  brew install --cask font-jetbrains-mono-nerd-font || true
-  
-  # Install Fira Code Nerd Font (popular for coding)
-  echo "Installing Fira Code Nerd Font..."
-  brew install --cask font-fira-code-nerd-font || true
-  
-  # Install Cascadia Code (Microsoft's developer font)
-  echo "Installing Cascadia Code..."
-  brew install --cask font-cascadia-code || true
-  
-  # Hack Nerd Font is another great option
-  echo "Installing Hack Nerd Font..."
-  brew install --cask font-hack-nerd-font || true
+  # Install fonts directly
+  brew_cask_install_if_needed "JetBrains Mono Nerd Font" "font-jetbrains-mono-nerd-font"
+  brew_cask_install_if_needed "Fira Code Nerd Font" "font-fira-code-nerd-font"
+  brew_cask_install_if_needed "Cascadia Code" "font-cascadia-code"
+  brew_cask_install_if_needed "Hack Nerd Font" "font-hack-nerd-font"
   
   echo "Font installation complete!"
   echo "To use these fonts:"
