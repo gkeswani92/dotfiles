@@ -69,6 +69,11 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   else
     echo "iTerm2 not found. Themes are available in $DOTFILES_PATH/terminal/themes/"
   fi
+  
+  # Install developer fonts
+  echo "✅ Installing developer fonts"
+  chmod +x $DOTFILES_PATH/terminal/fonts/install-fonts.sh
+  $DOTFILES_PATH/terminal/fonts/install-fonts.sh
 fi
 
 echo "✅ Creating symlinks to dotfiles"
