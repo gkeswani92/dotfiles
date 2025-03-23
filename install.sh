@@ -150,7 +150,13 @@ print_section "Configuring terminal welcome screen"
 echo "Setting up welcome screen with useful information and quotes"
 chmod +x $DOTFILES_PATH/terminal/welcome.sh
 
-# Step 10: Install developer tools (optional)
+# Step 10: Install zoxide for smart directory navigation
+print_section "Setting up zoxide directory jumper"
+echo "Installing zoxide for smarter directory navigation"
+chmod +x $DOTFILES_PATH/terminal/zoxide/install-zoxide.sh
+$DOTFILES_PATH/terminal/zoxide/install-zoxide.sh
+
+# Step 11: Install developer tools (optional)
 print_section "Installing additional developer tools"
 echo "Checking for GitHub CLI to install GitHub Copilot..."
 if command -v gh >/dev/null 2>&1; then

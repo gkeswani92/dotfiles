@@ -76,6 +76,11 @@ if [ -f "$DOTFILES_PATH/terminal/aliases.zsh" ]; then
   source "$DOTFILES_PATH/terminal/aliases.zsh"
 fi
 
+# Source zoxide configuration for smart directory navigation
+if [ -f "$DOTFILES_PATH/terminal/zoxide/config.zsh" ]; then
+  source "$DOTFILES_PATH/terminal/zoxide/config.zsh"
+fi
+
 # Local development environment aliases
 alias bp-full-local-dev="zellij --layout  ~/.config/zellij/bp-full.kdl"
 alias bp-orgs-only-dev="zellij --layout ~/.config/zellij/bp-orgs-only.kdl"
