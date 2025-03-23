@@ -55,6 +55,22 @@ echo "✅ Install vim plugins and colors"
 mkdir -p $HOME/.vim/colors
 cp $DOTFILES_PATH/vim/colors/* $HOME/.vim/colors/
 
+echo "✅ Install terminal themes"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # Check if iTerm2 is installed
+  if [ -d "/Applications/iTerm.app" ]; then
+    # Create the defaults directory if it doesn't exist
+    defaults_dir="$HOME/Library/Application Support/iTerm2/DynamicProfiles"
+    mkdir -p "$defaults_dir"
+
+    # Copy themes to iTerm2 dynamic profiles directory
+    cp $DOTFILES_PATH/terminal/themes/*.itermcolors "$HOME/Library/Application Support/iTerm2/ColorPresets/" 2>/dev/null || true
+    echo "Terminal themes installed. Open iTerm2 preferences to apply them."
+  else
+    echo "iTerm2 not found. Themes are available in $DOTFILES_PATH/terminal/themes/"
+  fi
+fi
+
 echo "✅ Creating symlinks to dotfiles"
 ln -sf $DOTFILES_PATH/git/.gitconfig ~/.gitconfig
 ln -sf $DOTFILES_PATH/ruby/.pryrc ~/.pryrc
