@@ -81,6 +81,16 @@ if [ -f "$DOTFILES_PATH/terminal/zoxide/config.zsh" ]; then
   source "$DOTFILES_PATH/terminal/zoxide/config.zsh"
 fi
 
+# Source improved history configuration with deduplication
+if [ -f "$DOTFILES_PATH/terminal/history/history-config.zsh" ]; then
+  source "$DOTFILES_PATH/terminal/history/history-config.zsh"
+fi
+
+# Source FZF history search enhancement
+if [ -f "$DOTFILES_PATH/terminal/history/fzf-history.zsh" ]; then
+  source "$DOTFILES_PATH/terminal/history/fzf-history.zsh"
+fi
+
 # Local development environment aliases
 alias bp-full-local-dev="zellij --layout  ~/.config/zellij/bp-full.kdl"
 alias bp-orgs-only-dev="zellij --layout ~/.config/zellij/bp-orgs-only.kdl"

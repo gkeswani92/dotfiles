@@ -156,6 +156,11 @@ echo "Installing zoxide for smarter directory navigation"
 chmod +x $DOTFILES_PATH/terminal/zoxide/install-zoxide.sh
 $DOTFILES_PATH/terminal/zoxide/install-zoxide.sh
 
+# Step 11: Set up enhanced shell history
+print_section "Configuring enhanced shell history"
+echo "Setting up improved history search and deduplication"
+mkdir -p $DOTFILES_PATH/terminal/history
+
 # Step 11: Install developer tools (optional)
 print_section "Installing additional developer tools"
 echo "Checking for GitHub CLI to install GitHub Copilot..."
