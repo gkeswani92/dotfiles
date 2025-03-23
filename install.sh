@@ -61,7 +61,7 @@ echo "Installing Git tools (interactive rebase, delta for better diffs)"
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS installation using Homebrew
   echo "Using Homebrew for macOS installations"
-  
+
   # Function to check if a brew package is installed
   brew_install_if_needed() {
     if brew list "$1" &>/dev/null; then
@@ -71,7 +71,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
       brew install "$1"
     fi
   }
-  
+
   # Install Git tools
   brew_install_if_needed git-interactive-rebase-tool
   brew_install_if_needed git-delta
@@ -90,7 +90,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "  - eza (modern ls replacement)"
   echo "  - git-absorb (automatically create fixup commits)"
   echo "  - zellij (terminal multiplexer)"
-  
+
   # Install tools using our helper function
   brew_install_if_needed fzf
   brew_install_if_needed eza
@@ -130,7 +130,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   else
     echo "iTerm2 not found. Themes are available in $DOTFILES_PATH/terminal/themes/ for manual installation."
   fi
-  
+
   # Install developer fonts with ligatures
   echo "Installing programming fonts with ligatures"
   chmod +x $DOTFILES_PATH/terminal/fonts/install-fonts.sh
@@ -164,7 +164,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   else
     echo "Couldn't create VS Code settings directory"
   fi
-  
+
   # Cursor settings (VS Code fork)
   CURSOR_DIR="$HOME/Library/Application Support/Cursor/User"
   if [ -d "$CURSOR_DIR" ] || mkdir -p "$CURSOR_DIR" 2>/dev/null; then
@@ -197,7 +197,7 @@ print_section "Configuring enhanced shell history"
 echo "Setting up improved history search and deduplication"
 mkdir -p $DOTFILES_PATH/terminal/history
 
-# Step 11: Install developer tools (optional)
+# Step 12: Install developer tools (optional)
 print_section "Installing additional developer tools"
 echo "Checking for GitHub CLI to install GitHub Copilot..."
 if command -v gh >/dev/null 2>&1; then

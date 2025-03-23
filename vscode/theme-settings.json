@@ -1,0 +1,29 @@
+{
+  "workbench.colorTheme": "Dracula",
+  "workbench.preferredDarkColorTheme": "Dracula",
+  "workbench.preferredLightColorTheme": "Catppuccin Latte",
+  "workbench.iconTheme": "material-icon-theme",
+
+  "workbench.colorCustomizations": {
+    "[Dracula]": {
+      "editor.background": "#282a36",
+      "terminal.background": "#282a36",
+      "terminal.foreground": "#f8f8f2"
+    },
+    "[Nord]": {
+      "editor.background": "#2e3440",
+      "terminal.background": "#2e3440",
+      "terminal.foreground": "#d8dee9"
+    },
+    "[Tokyo Night]": {
+      "editor.background": "#1a1b26",
+      "terminal.background": "#1a1b26",
+      "terminal.foreground": "#a9b1d6"
+    },
+    "[Catppuccin Mocha]": {
+      "editor.background": "#1e1e2e",
+      "terminal.background": "#1e1e2e",
+      "terminal.foreground": "#cdd6f4"
+    }
+  }
+}
