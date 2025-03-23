@@ -85,6 +85,11 @@ ln -sf $DOTFILES_PATH/vim/.vimrc ~/.vimrc
 ln -sf $DOTFILES_PATH/local-development/zellij/bp-full.kdl ~/.config/zellij/bp-full.kdl
 ln -sf $DOTFILES_PATH/local-development/zellij/bp-orgs-only.kdl ~/.config/zellij/bp-orgs-only.kdl
 
+# Install Starship prompt for beautiful shell prompt
+echo "✅ Installing Starship prompt"
+chmod +x $DOTFILES_PATH/terminal/prompt/starship/install-starship.sh
+$DOTFILES_PATH/terminal/prompt/starship/install-starship.sh
+
 echo "✅Install Github Copilot CLI"
 if command -v gh >/dev/null 2>&1; then
   gh extension install github/gh-copilot

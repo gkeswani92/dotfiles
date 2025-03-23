@@ -78,6 +78,9 @@ autoload -Uz compinit && compinit
 alias bp-full-local-dev="zellij --layout  ~/.config/zellij/bp-full.kdl"
 alias bp-orgs-only-dev="zellij --layout ~/.config/zellij/bp-orgs-only.kdl"
 
+# Initialize Starship prompt
+eval "$(starship init zsh)"
+
 # Potentially dev related commands that were added to the dotfiles
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
