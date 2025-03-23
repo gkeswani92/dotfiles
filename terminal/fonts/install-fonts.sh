@@ -8,8 +8,7 @@ echo "✅ Installing developer fonts with ligatures"
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS installation using Homebrew
   
-  # Add the fonts cask if not already tapped
-  brew tap homebrew/cask-fonts
+  # Install fonts directly (no need for tap anymore)
   
   # Install JetBrains Mono Nerd Font (includes ligatures and icons)
   echo "Installing JetBrains Mono Nerd Font..."
@@ -22,6 +21,10 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   # Install Cascadia Code (Microsoft's developer font)
   echo "Installing Cascadia Code..."
   brew install --cask font-cascadia-code || true
+  
+  # Hack Nerd Font is another great option
+  echo "Installing Hack Nerd Font..."
+  brew install --cask font-hack-nerd-font || true
   
   echo "Font installation complete!"
   echo "To use these fonts:"
