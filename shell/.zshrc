@@ -70,11 +70,13 @@ autoload -Uz compinit && compinit
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-# alias ls="exa --long --header"
+
+# Source enhanced aliases from dotfiles
+if [ -f "$DOTFILES_PATH/terminal/aliases.zsh" ]; then
+  source "$DOTFILES_PATH/terminal/aliases.zsh"
+fi
+
+# Local development environment aliases
 alias bp-full-local-dev="zellij --layout  ~/.config/zellij/bp-full.kdl"
 alias bp-orgs-only-dev="zellij --layout ~/.config/zellij/bp-orgs-only.kdl"
 
