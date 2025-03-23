@@ -5,6 +5,7 @@
 [core]
   commitGraph = true
   editor = vim
+  pager = delta
 
 [diff]
   algorithm = patience
@@ -67,10 +68,32 @@
 [interactive]
   diffFilter = delta --color-only
 
+[pager]
+  diff = delta
+  log = delta
+  reflog = delta
+  show = delta
+
 [delta]
-  navigate = true  # use n and N to move between diff sections
-  line-numbers = true
-  side-by-side = true
+  navigate = true                     # use n and N to move between diff sections
+  line-numbers = true                 # show line numbers
+  side-by-side = true                 # display a side-by-side diff view
+  light = false                       # set to true if you're in a light terminal background
+  syntax-theme = Nord                 # syntax highlighting theme
+  features = decorations              # enable terminal decorations
+  
+  # Make the dark delta background lighter than the terminal background
+  minus-style                   = syntax "#3f2d3d"
+  minus-non-emph-style          = syntax "#3f2d3d"
+  minus-emph-style              = syntax "#71383f"
+  minus-empty-line-marker-style = syntax "#3f2d3d"
+  line-numbers-minus-style      = "#c25d64"
+  plus-style                    = syntax "#283f3d"
+  plus-non-emph-style           = syntax "#283f3d"
+  plus-emph-style               = syntax "#316e5c"
+  plus-empty-line-marker-style  = syntax "#283f3d"
+  line-numbers-plus-style       = "#399b7c"
+  line-numbers-zero-style       = "#3b4048"
 
 [merge]
   conflictstyle = diff3
