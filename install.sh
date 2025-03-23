@@ -141,8 +141,9 @@ fi
 print_section "Creating configuration symlinks"
 echo "Creating symlinks to connect dotfiles with their expected locations"
 
-# Ensure Zellij config directory exists
+# Ensure config directories exist
 mkdir -p ~/.config/zellij
+mkdir -p ~/Library/Application\ Support/Code/User/
 
 # Create all symlinks
 ln -sf $DOTFILES_PATH/git/.gitconfig ~/.gitconfig
@@ -152,6 +153,27 @@ ln -sf $DOTFILES_PATH/shell/.zshrc ~/.zshrc
 ln -sf $DOTFILES_PATH/vim/.vimrc ~/.vimrc
 ln -sf $DOTFILES_PATH/local-development/zellij/bp-full.kdl ~/.config/zellij/bp-full.kdl
 ln -sf $DOTFILES_PATH/local-development/zellij/bp-orgs-only.kdl ~/.config/zellij/bp-orgs-only.kdl
+
+# Editor settings (macOS only)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # VS Code settings
+  VSCODE_DIR="$HOME/Library/Application Support/Code/User"
+  if [ -d "$VSCODE_DIR" ] || mkdir -p "$VSCODE_DIR" 2>/dev/null; then
+    echo "Linking VS Code settings..."
+    ln -sf $DOTFILES_PATH/vscode/settings.json "$VSCODE_DIR/settings.json"
+  else
+    echo "Couldn't create VS Code settings directory"
+  fi
+  
+  # Cursor settings (VS Code fork)
+  CURSOR_DIR="$HOME/Library/Application Support/Cursor/User"
+  if [ -d "$CURSOR_DIR" ] || mkdir -p "$CURSOR_DIR" 2>/dev/null; then
+    echo "Linking Cursor settings..."
+    ln -sf $DOTFILES_PATH/vscode/settings.json "$CURSOR_DIR/settings.json"
+  else
+    echo "Couldn't create Cursor settings directory"
+  fi
+fi
 
 # Step 8: Install and configure shell prompt
 print_section "Setting up shell prompt"
