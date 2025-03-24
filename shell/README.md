@@ -5,7 +5,7 @@ This directory contains configuration files for your shell environment (Zsh) and
 ## Contents
 
 - `.zshrc`: Zsh shell configuration
-- `tmux.conf`: Tmux terminal multiplexer configuration
+- Tmux configuration has been moved to `/terminal/tmux/`
 
 ## Zsh Configuration (`.zshrc`)
 
@@ -40,14 +40,6 @@ Enables and configures the following plugins:
 Aliases for starting Zellij with custom layouts:
 - `bp-full-local-dev`: Full development environment layout
 - `bp-orgs-only-dev`: Organizations-only development layout
-
-## Tmux Configuration (`tmux.conf`)
-
-Tmux is configured with:
-
-- Mouse support enabled
-- Increased scrollback buffer to 10,000 lines
-- Simple, functional setup for terminal multiplexing
 
 ## Usage
 

@@ -148,7 +148,7 @@ mkdir -p ~/Library/Application\ Support/Code/User/
 # Create all symlinks
 ln -sf $DOTFILES_PATH/git/.gitconfig ~/.gitconfig
 ln -sf $DOTFILES_PATH/ruby/.pryrc ~/.pryrc
-ln -sf $DOTFILES_PATH/shell/tmux.conf ~/.tmux.conf
+ln -sf $DOTFILES_PATH/terminal/tmux/tmux.conf ~/.tmux.conf
 ln -sf $DOTFILES_PATH/shell/.zshrc ~/.zshrc
 ln -sf $DOTFILES_PATH/vim/.vimrc ~/.vimrc
 ln -sf $DOTFILES_PATH/local-development/zellij/bp-full.kdl ~/.config/zellij/bp-full.kdl
