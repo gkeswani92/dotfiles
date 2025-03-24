@@ -16,6 +16,18 @@ This directory contains color schemes for your terminal emulator.
 4. **Nord** - Arctic, north-bluish color palette
    - Download: https://github.com/arcticicestudio/nord-iterm2
 
+5. **Everforest** - A green-based color scheme inspired by nature
+   - Download: https://github.com/sainnhe/everforest
+
+6. **Gruvbox** - Retro groove color scheme with warm, earthy tones
+   - Download: https://github.com/morhetz/gruvbox
+
+7. **Kanagawa** - Japanese ukiyo-e style theme inspired by The Great Wave
+   - Download: https://github.com/rebelot/kanagawa.nvim
+
+8. **Rose Pine** - Soho vibes for the adventurous developer
+   - Download: https://github.com/rose-pine/iterm
+
 ## How to Install
 
 ### iTerm2
