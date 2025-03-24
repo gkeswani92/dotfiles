@@ -1,0 +1,44 @@
+#!/bin/bash
+#
+# Dotfiles Installation Script
+# ----------------------------
+# This script sets up a complete development environment by orchestrating
+# modular installation scripts for different components.
+#
+# Usage: ./install.sh
+#
+# The -e option causes the script to exit immediately if any command fails
+set -e
+
+# Define the path to your dotfiles
+export DOTFILES_PATH=$HOME/dotfiles
+
+# Load utility functions
+source "$DOTFILES_PATH/scripts/install_utils.sh"
+
+# Step 1: Ensure dotfiles are available locally
+print_section "Setting up dotfiles repository"
+if test -d $DOTFILES_PATH; then
+  echo "Dotfiles already cloned to $DOTFILES_PATH"
+else
+  echo "Cloning dotfiles repository to $DOTFILES_PATH"
+  git clone https://github.com/gkeswani92/dotfiles $DOTFILES_PATH
+  
+  # Make sure all scripts are executable
+  find "$DOTFILES_PATH" -name "*.sh" -exec chmod +x {} \;
+fi
+
+# Step 2: Run component-specific installation scripts
+run_script "$DOTFILES_PATH/shell/install.sh"
+run_script "$DOTFILES_PATH/git/install.sh"
+run_script "$DOTFILES_PATH/terminal/install.sh"
+run_script "$DOTFILES_PATH/editors/install.sh"
+run_script "$DOTFILES_PATH/scripts/install_devtools.sh"
+
+# Completion message
+print_section "Installation Complete!"
+echo "Your development environment has been successfully configured."
+echo "Please restart your terminal or run 'source ~/.zshrc' to apply all changes."
+echo ""
+echo "To update your dotfiles in the future, run:"
+echo "  cd $DOTFILES_PATH && git pull && ./install.sh"
