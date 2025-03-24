@@ -1,6 +1,7 @@
 {
   // Editor appearance
   "workbench.editor.enablePreview": false,
+  "workbench.editor.wrapTabs": true,
   "window.zoomLevel": 0,
   "workbench.colorTheme": "Catppuccin Mocha",
   "workbench.preferredDarkColorTheme": "Catppuccin Mocha",
