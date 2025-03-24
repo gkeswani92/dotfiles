@@ -8,7 +8,7 @@ layout {
       }
       pane name="billing" command="zsh" start_suspended=true {
           args "-i" "-c" "dev cd world && cd areas/platforms/billing && dev up && dev server"
-      }      
+      }
   }
   pane split_direction="vertical" {
       pane name="core" command="zsh" start_suspended=true {

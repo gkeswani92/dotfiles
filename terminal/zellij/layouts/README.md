@@ -4,7 +4,6 @@ This directory contains configurations and scripts to streamline local developme
 
 ## Contents
 
-- `bp-full-tmux.sh`: Script for setting up development environment with Tmux
 - `zellij/`: Layouts for Zellij terminal multiplexer
   - `bp-full.kdl`: Complete development environment layout
   - `bp-orgs-only.kdl`: Organizations-only development layout

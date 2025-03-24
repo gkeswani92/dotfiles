@@ -132,5 +132,6 @@
   "debug.console.fontFamily": "JetBrains Mono, Hack Nerd Font",
   "debug.console.fontSize": 13,
   "editor.unicodeHighlight.allowedCharacters": {},
-  "editor.stickyScroll.enabled": true
+  "editor.stickyScroll.enabled": true,
+  "git.openRepositoryInParentFolders": "always"
 }

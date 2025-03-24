@@ -142,7 +142,7 @@ print_section "Creating configuration symlinks"
 echo "Creating symlinks to connect dotfiles with their expected locations"
 
 # Ensure config directories exist
-mkdir -p ~/.config/zellij
+mkdir -p ~/.config/zellij/layouts
 mkdir -p ~/Library/Application\ Support/Code/User/
 
 # Create all symlinks
@@ -151,8 +151,18 @@ ln -sf $DOTFILES_PATH/ruby/.pryrc ~/.pryrc
 ln -sf $DOTFILES_PATH/terminal/tmux/tmux.conf ~/.tmux.conf
 ln -sf $DOTFILES_PATH/shell/.zshrc ~/.zshrc
 ln -sf $DOTFILES_PATH/vim/.vimrc ~/.vimrc
+
+# Set up Zellij configuration
+echo "Setting up Zellij configuration..."
+ln -sf $DOTFILES_PATH/terminal/zellij/config.kdl ~/.config/zellij/config.kdl
 ln -sf $DOTFILES_PATH/local-development/zellij/bp-full.kdl ~/.config/zellij/bp-full.kdl
 ln -sf $DOTFILES_PATH/local-development/zellij/bp-orgs-only.kdl ~/.config/zellij/bp-orgs-only.kdl
+
+# Link layout files
+for layout in $DOTFILES_PATH/terminal/zellij/layouts/*.kdl; do
+  layout_file=$(basename "$layout")
+  ln -sf "$layout" "$HOME/.config/zellij/layouts/$layout_file"
+done
 
 # Editor settings (macOS only)
 if [[ "$OSTYPE" == "darwin"* ]]; then

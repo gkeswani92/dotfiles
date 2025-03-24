@@ -1,0 +1,49 @@
+layout {
+    pane_template name="nf" {
+        command "zsh"
+        args "-i" "-c" "$SHELL"
+    }
+
+    default_tab_template {
+        children
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane size=2 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+
+    tab name="Main" focus=true {
+        pane split_direction="vertical" {
+            pane name="editor" focus=true
+            pane name="terminal" size="30%"
+        }
+    }
+
+    tab name="Services" {
+        pane split_direction="vertical" {
+            pane name="service1" focus=true size="50%"
+            pane split_direction="horizontal" {
+                pane name="service2" 
+                pane name="service3"
+            }
+        }
+    }
+
+    tab name="Monitoring" {
+        pane split_direction="vertical" {
+            pane name="top" command="zsh" {
+                args "-i" "-c" "htop"
+            }
+            pane split_direction="horizontal" {
+                pane name="disk" command="zsh" {
+                    args "-i" "-c" "df -h"
+                }
+                pane name="system" command="zsh" {
+                    args "-i" "-c" "system_profiler SPSoftwareDataType SPHardwareDataType"
+                }
+            }
+        }
+    }
+}

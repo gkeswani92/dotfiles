@@ -1,0 +1,166 @@
+// Zellij Configuration File
+// Location: ~/.config/zellij/config.kdl
+
+// General behavior
+default_shell "zsh"
+default_layout "default"
+mouse_mode true
+pane_frames false
+on_force_close "quit"
+copy_on_select true
+
+// Theming
+theme "catppuccin-mocha"
+
+// Key bindings (using Alt key - which is Option on Mac)
+keybinds {
+    normal {
+        // Unbind the default Ctrl+g
+        unbind "Ctrl g"
+
+        // Use Alt+b as the prefix (like tmux's Ctrl+b)
+        bind "Alt b" { SwitchToMode "tmux"; }
+
+        // Direct pane navigation with Alt+arrow
+        bind "Alt Left" { MoveFocus "Left"; }
+        bind "Alt Down" { MoveFocus "Down"; }
+        bind "Alt Up" { MoveFocus "Up"; }
+        bind "Alt Right" { MoveFocus "Right"; }
+
+        // Direct resize with Alt+Shift+arrow
+        bind "Alt Shift Left" { Resize "Left"; }
+        bind "Alt Shift Down" { Resize "Down"; }
+        bind "Alt Shift Up" { Resize "Up"; }
+        bind "Alt Shift Right" { Resize "Right"; }
+
+        // Some quick actions
+        bind "Alt n" { NewPane; }
+        bind "Alt w" { CloseFocus; }
+        bind "Alt /" { SwitchToMode "search"; }
+        bind "Alt d" { Detach; }
+        bind "Alt f" { ToggleFocusFullscreen; }
+        bind "Alt r" { SwitchToMode "resize"; }
+    }
+
+    // Add a tmux-like mode for tmux users
+    tmux {
+        bind "Esc" { SwitchToMode "normal"; }
+
+        // Pane management
+        bind "h" { MoveFocus "Left"; SwitchToMode "normal"; }
+        bind "j" { MoveFocus "Down"; SwitchToMode "normal"; }
+        bind "k" { MoveFocus "Up"; SwitchToMode "normal"; }
+        bind "l" { MoveFocus "Right"; SwitchToMode "normal"; }
+
+        // Splits similar to tmux
+        bind "v" { NewPane "Down"; SwitchToMode "normal"; }
+        bind "b" { NewPane "Right"; SwitchToMode "normal"; }
+
+        // Layout toggles
+        bind "z" { ToggleFocusFullscreen; SwitchToMode "normal"; }
+
+        // Window/tab management
+        bind "c" { NewTab; SwitchToMode "normal"; }
+        bind "n" { GoToNextTab; SwitchToMode "normal"; }
+        bind "p" { GoToPreviousTab; SwitchToMode "normal"; }
+
+        // Miscellaneous
+        bind "d" { Detach; }
+        bind "x" { CloseFocus; SwitchToMode "normal"; }
+        bind "Space" { NextSwapLayout; SwitchToMode "normal"; }
+    }
+
+    // Resize mode
+    resize {
+        bind "Esc" { SwitchToMode "normal"; }
+        bind "h" { Resize "Left"; }
+        bind "j" { Resize "Down"; }
+        bind "k" { Resize "Up"; }
+        bind "l" { Resize "Right"; }
+    }
+
+    // Move mode
+    move {
+        bind "Esc" { SwitchToMode "normal"; }
+        bind "h" { MovePane "Left"; }
+        bind "j" { MovePane "Down"; }
+        bind "k" { MovePane "Up"; }
+        bind "l" { MovePane "Right"; }
+    }
+
+    // Tab/session management
+    session {
+        bind "Esc" { SwitchToMode "normal"; }
+        bind "d" { Detach; }
+    }
+}
+
+// Theme definitions
+themes {
+    catppuccin-mocha {
+        bg "#1e1e2e"
+        fg "#cdd6f4"
+        red "#f38ba8"
+        green "#a6e3a1"
+        blue "#89b4fa"
+        yellow "#f9e2af"
+        magenta "#cba6f7"
+        orange "#fab387"
+        cyan "#89dceb"
+        black "#181825"
+        white "#cdd6f4"
+    }
+
+    dracula {
+        bg "#282a36"
+        fg "#f8f8f2"
+        red "#ff5555"
+        green "#50fa7b"
+        blue "#bd93f9"
+        yellow "#f1fa8c"
+        magenta "#ff79c6"
+        orange "#ffb86c"
+        cyan "#8be9fd"
+        black "#21222c"
+        white "#f8f8f2"
+    }
+
+    tokyo-night {
+        bg "#1a1b26"
+        fg "#a9b1d6"
+        red "#f7768e"
+        green "#9ece6a"
+        blue "#7aa2f7"
+        yellow "#e0af68"
+        magenta "#bb9af7"
+        orange "#ff9e64"
+        cyan "#7dcfff"
+        black "#414868"
+        white "#c0caf5"
+    }
+
+    nord {
+        bg "#2e3440"
+        fg "#d8dee9"
+        red "#bf616a"
+        green "#a3be8c"
+        blue "#81a1c1"
+        yellow "#ebcb8b"
+        magenta "#b48ead"
+        orange "#d08770"
+        cyan "#88c0d0"
+        black "#3b4252"
+        white "#e5e9f0"
+    }
+}
+
+// Enable session manager UI plugins by default
+plugins {
+    tab-bar { path "tab-bar"; }
+    status-bar { path "status-bar"; }
+    strider { path "strider"; }
+    session-manager { path "session-manager"; }
+}
+
+// Set copy command for macOS
+copy_command "pbcopy"

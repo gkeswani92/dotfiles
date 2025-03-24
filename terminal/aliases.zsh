@@ -110,3 +110,8 @@ alias duh="du -h -d 1 | sort -hr"
 
 # Show directory sizes
 alias dirsize="du -h --max-depth=1 | sort -hr"
+
+# Load Zellij aliases if available
+if [ -f "$DOTFILES_PATH/terminal/zellij/aliases.zsh" ]; then
+  source "$DOTFILES_PATH/terminal/zellij/aliases.zsh"
+fi

@@ -1,0 +1,49 @@
+layout {
+    pane_template name="nf" {
+        command "zsh"
+        args "-i" "-c" "$SHELL"
+    }
+
+    default_tab_template {
+        children
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane size=2 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+
+    tab name="Project" focus=true {
+        pane split_direction="vertical" {
+            pane name="editor" focus=true
+            pane name="terminal" size="30%"
+        }
+    }
+
+    tab name="Git" {
+        pane split_direction="vertical" {
+            pane name="status" {
+                command "zsh"
+                args "-i" "-c" "git status && echo '\nRecent commits:' && git log --oneline -5 && $SHELL"
+            }
+            pane name="operations" split_direction="horizontal" {
+                pane name="diff" {
+                    command "zsh"
+                    args "-i" "-c" "git diff && $SHELL"
+                }
+                pane name="shell"
+            }
+        }
+    }
+
+    tab name="Servers" {
+        pane split_direction="vertical" {
+            pane name="server1" focus=true size="50%"
+            pane split_direction="horizontal" {
+                pane name="server2" 
+                pane name="logs"
+            }
+        }
+    }
+}
