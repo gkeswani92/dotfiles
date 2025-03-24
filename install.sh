@@ -207,7 +207,13 @@ print_section "Configuring enhanced shell history"
 echo "Setting up improved history search and deduplication"
 mkdir -p $DOTFILES_PATH/terminal/history
 
-# Step 12: Install developer tools (optional)
+# Step 12: Set up Neovim with LazyVim
+print_section "Setting up Neovim with LazyVim"
+echo "Installing and configuring Neovim with LazyVim..."
+chmod +x $DOTFILES_PATH/terminal/neovim/install-neovim.sh
+$DOTFILES_PATH/terminal/neovim/install-neovim.sh
+
+# Step 13: Install developer tools (optional)
 print_section "Installing additional developer tools"
 echo "Checking for GitHub CLI to install GitHub Copilot..."
 if command -v gh >/dev/null 2>&1; then
