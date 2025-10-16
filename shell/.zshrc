@@ -137,7 +137,7 @@ compdef _gt_yargs_completions gt
 link_claude_commands() {
   if [ -d .claude ]; then
     mkdir -p .claude/commands
-    for cmd in $DOTFILES_PATH/.claude/commands/*.md; do
+    for cmd in $DOTFILES_PATH/claude_configuration/commands/*.md; do
       [ -f "$cmd" ] && ln -sf "$cmd" .claude/commands/
     done
   fi
