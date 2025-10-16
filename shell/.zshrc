@@ -112,3 +112,19 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Auto-link global Claude Code commands to project-specific .claude/commands
+link_claude_commands() {
+  if [ -d .claude ]; then
+    mkdir -p .claude/commands
+    for cmd in $DOTFILES_PATH/.claude/commands/*.md; do
+      [ -f "$cmd" ] && ln -sf "$cmd" .claude/commands/
+    done
+  fi
+}
+
+# Run when changing directories (oh-my-zsh compatible)
+chpwd_functions+=(link_claude_commands)
+
+# Run on shell startup if we're in a Claude Code project
+link_claude_commands
