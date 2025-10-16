@@ -133,5 +133,12 @@
   "debug.console.fontSize": 13,
   "editor.unicodeHighlight.allowedCharacters": {},
   "editor.stickyScroll.enabled": true,
-  "git.openRepositoryInParentFolders": "always"
+  "git.openRepositoryInParentFolders": "always",
+  "window.newWindowDimensions": "fullscreen",
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "rubyLsp.featureFlags": {
+    "fullTestDiscovery": true
+  }
 }

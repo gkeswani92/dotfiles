@@ -113,6 +113,26 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+#compdef gt
+###-begin-gt-completions-###
+#
+# yargs command completion script
+#
+# Installation: gt completion >> ~/.zshrc
+#    or gt completion >> ~/.zprofile on OSX.
+#
+_gt_yargs_completions()
+{
+  local reply
+  local si=$IFS
+  IFS=$'
+' reply=($(COMP_CWORD="$((CURRENT-1))" COMP_LINE="$BUFFER" COMP_POINT="$CURSOR" gt --get-yargs-completions "${words[@]}"))
+  IFS=$si
+  _describe 'values' reply
+}
+compdef _gt_yargs_completions gt
+###-end-gt-completions-###
+
 # Auto-link global Claude Code commands to project-specific .claude/commands
 link_claude_commands() {
   if [ -d .claude ]; then
@@ -128,3 +148,7 @@ chpwd_functions+=(link_claude_commands)
 
 # Run on shell startup if we're in a Claude Code project
 link_claude_commands
+
+
+# Added by tec agent
+[[ -x /Users/gaurav/.local/state/tec/profiles/base/current/global/init ]] && eval "$(/Users/gaurav/.local/state/tec/profiles/base/current/global/init zsh)"
