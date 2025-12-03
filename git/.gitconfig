@@ -103,7 +103,6 @@
 	path = /Users/gaurav/.config/dev/gitconfig
 [maintenance]
 	repo = /Users/gaurav/world/trees/root/src
-	repo = /Users/gaurav/world/trees/business-platform-internal/src
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f

@@ -133,21 +133,25 @@ _gt_yargs_completions()
 compdef _gt_yargs_completions gt
 ###-end-gt-completions-###
 
-# Auto-link global Claude Code commands to project-specific .claude/commands
-link_claude_commands() {
-  if [ -d .claude ]; then
-    mkdir -p .claude/commands
-    for cmd in $DOTFILES_PATH/claude_configuration/commands/*.md; do
-      [ -f "$cmd" ] && ln -sf "$cmd" .claude/commands/
-    done
+# Link dotfiles Claude commands to global ~/.claude/commands directory
+link_global_claude_commands() {
+  mkdir -p ~/.claude/commands
+  for cmd in $DOTFILES_PATH/claude_configuration/commands/*.md; do
+    [ -f "$cmd" ] && ln -sf "$cmd" ~/.claude/commands/
+  done
+}
+
+# Link global CLAUDE.md configuration file
+link_global_claude_config() {
+  mkdir -p ~/.config/claude
+  if [ -f "$DOTFILES_PATH/claude_configuration/CLAUDE.md" ]; then
+    ln -sf "$DOTFILES_PATH/claude_configuration/CLAUDE.md" ~/.config/claude/CLAUDE.md
   fi
 }
 
-# Run when changing directories (oh-my-zsh compatible)
-chpwd_functions+=(link_claude_commands)
-
-# Run on shell startup if we're in a Claude Code project
-link_claude_commands
+# Run once on shell startup to ensure commands and config are linked
+link_global_claude_commands
+link_global_claude_config
 
 
 # Added by tec agent
