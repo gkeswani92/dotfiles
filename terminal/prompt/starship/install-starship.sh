@@ -23,7 +23,7 @@ fi
 # Configure Starship
 echo "Configuring Starship..."
 mkdir -p ~/.config
-cp "$(dirname "$0")/starship.toml" ~/.config/starship.toml
+ln -sf "$(dirname "$0")/starship.toml" ~/.config/starship.toml
 
 # Detect shell and add Starship initialization
 DETECTED_SHELL="$(basename "$SHELL")"

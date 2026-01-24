@@ -20,7 +20,7 @@ $character
 add_newline = true
 
 # Set timeout for commands (milliseconds)
-command_timeout = 1000
+command_timeout = 5000
 
 # Character prompt (shows ❯ on normal prompt and ✗ when last command failed)
 [character]
