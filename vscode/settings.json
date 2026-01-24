@@ -2,10 +2,9 @@
   // Editor appearance
   "workbench.editor.enablePreview": false,
   "window.zoomLevel": 0,
-  "workbench.colorTheme": "Catppuccin Mocha",
+  "workbench.colorTheme": "Catppuccin Macchiato",
   "workbench.preferredDarkColorTheme": "Catppuccin Mocha",
   "workbench.preferredLightColorTheme": "Catppuccin Latte",
-  "workbench.iconTheme": "material-icon-theme",
   // Editor behavior
   "editor.fontFamily": "JetBrains Mono, monospace",
   "editor.fontLigatures": true,
@@ -112,7 +111,7 @@
   "gitlens.hovers.currentLine.over": "line",
   "gitlens.views.repositories.location": "scm",
   // Extensions
-  "extensions.ignoreRecommendations": false,
+  "extensions.ignoreRecommendations": true,
   // Search
   "search.exclude": {
     "**/node_modules": true,
@@ -140,5 +139,9 @@
   },
   "rubyLsp.featureFlags": {
     "fullTestDiscovery": true
-  }
+  },
+  "gitlens.ai.model": "gitkraken",
+  "gitlens.ai.gitkraken.model": "gemini:gemini-2.0-flash",
+  "workbench.editor.wrapTabs": true,
+  "workbench.activityBar.orientation": "vertical"
 }
