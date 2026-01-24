@@ -115,3 +115,27 @@ alias dirsize="du -h --max-depth=1 | sort -hr"
 if [ -f "$DOTFILES_PATH/terminal/zellij/aliases.zsh" ]; then
   source "$DOTFILES_PATH/terminal/zellij/aliases.zsh"
 fi
+
+# fd - Fast file search (replaces find)
+if command -v fd &> /dev/null; then
+  alias f='fd'
+  alias fh='fd --hidden'
+  alias fa='fd --hidden --no-ignore'
+fi
+
+# lazygit - Git TUI client
+if command -v lazygit &> /dev/null; then
+  alias lg='lazygit'
+fi
+
+# btop - System monitor (replaces top/htop)
+if command -v btop &> /dev/null; then
+  alias top='btop'
+  alias htop='btop'
+fi
+
+# dua - Disk usage analyzer (replaces du/ncdu)
+if command -v dua &> /dev/null; then
+  alias dui='dua interactive'
+  alias dus='dua --apparent-size'
+fi

@@ -90,18 +90,32 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "  - eza (modern ls replacement)"
   echo "  - git-absorb (automatically create fixup commits)"
   echo "  - zellij (terminal multiplexer)"
+  echo "  - fd (fast file search)"
+  echo "  - lazygit (git TUI client)"
+  echo "  - btop (system monitor)"
+  echo "  - dua-cli (disk usage analyzer)"
 
   # Install tools using our helper function
   brew_install_if_needed fzf
   brew_install_if_needed eza
   brew_install_if_needed git-absorb
   brew_install_if_needed zellij
+  brew_install_if_needed fd
+  brew_install_if_needed lazygit
+  brew_install_if_needed btop
+  brew_install_if_needed dua-cli
 else
   # Linux tools
   echo "Installing command-line tools via apt:"
   sudo apt-get install -y fzf
   sudo apt-get install -y exa
   sudo apt install -y git-absorb
+  sudo apt install -y fd-find
+  sudo apt install -y btop
+  # lazygit and dua-cli require manual installation on Linux
+  echo "Note: lazygit and dua-cli may need manual installation on Linux"
+  echo "  lazygit: https://github.com/jesseduffield/lazygit#installation"
+  echo "  dua-cli: cargo install dua-cli"
 fi
 
 # Step 5: Set up Vim configuration
