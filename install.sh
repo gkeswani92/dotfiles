@@ -151,6 +151,7 @@ ln -sf $DOTFILES_PATH/ruby/.pryrc ~/.pryrc
 ln -sf $DOTFILES_PATH/terminal/tmux/tmux.conf ~/.tmux.conf
 ln -sf $DOTFILES_PATH/shell/.zshrc ~/.zshrc
 ln -sf $DOTFILES_PATH/vim/.vimrc ~/.vimrc
+ln -sf $DOTFILES_PATH/terminal/prompt/starship/starship.toml ~/.config/starship.toml
 
 # Set up Zellij configuration
 echo "Setting up Zellij configuration..."
