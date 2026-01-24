@@ -21,19 +21,19 @@ if command -v eza &> /dev/null; then
   alias ls="eza --icons --group-directories-first"
   alias ll="eza --icons --group-directories-first -la"
   alias la="eza --icons --group-directories-first -a"
-  
+
   # Show files sorted by modification time
   alias lt="eza --icons --group-directories-first -la --sort=modified"
-  
+
   # Tree view with icons
   alias tree="eza --icons --group-directories-first --tree"
-  
+
   # Show only directories
   alias lsd="eza --icons -D"
-  
+
   # Show only files
   alias lsf="eza --icons -f"
-  
+
   # Show file sizes in a human-readable format
   alias lsh="eza --icons -la --sort=size --reverse"
 fi

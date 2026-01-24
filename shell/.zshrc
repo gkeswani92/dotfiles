@@ -54,11 +54,25 @@ fi
 # Check if .fzf.zsh exists and if yes, source it
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# asdf tool version manager
+# Lazy-load asdf tool version manager (speeds up shell startup)
+# asdf will load on first use of asdf, ruby, python, golang, etc.
 if [ -d "$HOME/.asdf" ]; then
-  . "$HOME/.asdf/asdf.sh"
-  # append completions to fpath
+  export ASDF_DIR="$HOME/.asdf"
   fpath=(${ASDF_DIR}/completions $fpath)
+
+  _load_asdf() {
+    unfunction asdf ruby python python3 pip pip3 golang go 2>/dev/null
+    . "$ASDF_DIR/asdf.sh"
+  }
+
+  asdf() { _load_asdf && asdf "$@" }
+  ruby() { _load_asdf && ruby "$@" }
+  python() { _load_asdf && python "$@" }
+  python3() { _load_asdf && python3 "$@" }
+  pip() { _load_asdf && pip "$@" }
+  pip3() { _load_asdf && pip3 "$@" }
+  golang() { _load_asdf && golang "$@" }
+  go() { _load_asdf && go "$@" }
 fi
 
 # Initialise completions with ZSH's compinit
@@ -98,9 +112,13 @@ alias bp-orgs-only-dev="zellij --layout ~/.config/zellij/bp-orgs-only.kdl"
 # Initialize Starship prompt
 eval "$(starship init zsh)"
 
-# Display welcome screen on new terminal sessions
+# Display welcome screen on new terminal sessions (deferred for faster prompt)
+# The welcome message shows after the prompt appears
 if [[ $- == *i* ]]; then  # Only run in interactive shells
-  $DOTFILES_PATH/terminal/welcome.sh
+  {
+    sleep 0.1
+    $DOTFILES_PATH/terminal/welcome.sh
+  } &!
 fi
 
 # Potentially dev related commands that were added to the dotfiles
@@ -109,9 +127,21 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 [[ -f /opt/dev/sh/chruby/chruby.sh ]] && { type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; } }
 [[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
 
+# Lazy-load NVM (speeds up shell startup by ~200-400ms)
+# NVM will load on first use of node, npm, npx, or nvm commands
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  _load_nvm() {
+    unfunction nvm node npm npx 2>/dev/null
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  }
+
+  nvm() { _load_nvm && nvm "$@" }
+  node() { _load_nvm && node "$@" }
+  npm() { _load_nvm && npm "$@" }
+  npx() { _load_nvm && npx "$@" }
+fi
 
 #compdef gt
 ###-begin-gt-completions-###

@@ -2,7 +2,7 @@
   // Editor appearance
   "workbench.editor.enablePreview": false,
   "window.zoomLevel": 0,
-  "workbench.colorTheme": "Catppuccin Macchiato",
+  "workbench.colorTheme": "Catppuccin Mocha",
   "workbench.preferredDarkColorTheme": "Catppuccin Mocha",
   "workbench.preferredLightColorTheme": "Catppuccin Latte",
   // Editor behavior
