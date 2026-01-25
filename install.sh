@@ -206,6 +206,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   if [ -d "$VSCODE_DIR" ] || mkdir -p "$VSCODE_DIR" 2>/dev/null; then
     echo "Linking VS Code settings..."
     ln -sf $DOTFILES_PATH/vscode/settings.json "$VSCODE_DIR/settings.json"
+    ln -sf $DOTFILES_PATH/vscode/keybindings.json "$VSCODE_DIR/keybindings.json"
   else
     echo "Couldn't create VS Code settings directory"
   fi
@@ -215,6 +216,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   if [ -d "$CURSOR_DIR" ] || mkdir -p "$CURSOR_DIR" 2>/dev/null; then
     echo "Linking Cursor settings..."
     ln -sf $DOTFILES_PATH/vscode/settings.json "$CURSOR_DIR/settings.json"
+    ln -sf $DOTFILES_PATH/vscode/keybindings.json "$CURSOR_DIR/keybindings.json"
   else
     echo "Couldn't create Cursor settings directory"
   fi

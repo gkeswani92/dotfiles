@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "catppuccin.catppuccin-vsc",
+    "catppuccin.catppuccin-vsc-icons",
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "shopify.ruby-lsp",
+    "christian-kohler.path-intellisense",
+    "usernamehw.errorlens",
+    "anthropics.claude-code"
+  ]
+}

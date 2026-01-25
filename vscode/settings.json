@@ -118,7 +118,15 @@
     "**/bower_components": true,
     "**/dist": true,
     "**/coverage": true,
-    "**/.git": true
+    "**/.git": true,
+    "**/.next": true,
+    "**/.nuxt": true,
+    "**/vendor": true,
+    "**/*.min.js": true,
+    "**/*.min.css": true,
+    "**/package-lock.json": true,
+    "**/yarn.lock": true,
+    "**/pnpm-lock.yaml": true
   },
   "search.useGlobalIgnoreFiles": true,
   // Breadcrumbs
