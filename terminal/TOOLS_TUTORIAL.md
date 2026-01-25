@@ -16,6 +16,9 @@ Quick reference for all tools installed via dotfiles.
 8. [dua - Disk Usage Analyzer](#dua---disk-usage-analyzer)
 9. [git-delta - Better Diffs](#git-delta---better-diffs)
 10. [git-absorb - Auto Fixup Commits](#git-absorb---auto-fixup-commits)
+11. [atuin - Enhanced Shell History](#atuin---enhanced-shell-history)
+12. [thefuck - Command Correction](#thefuck---command-correction)
+13. [fastfetch - System Info](#fastfetch---system-info)
 
 ---
 
@@ -498,6 +501,143 @@ git rebase -i --autosquash HEAD~10  # Apply the fixup
 
 ---
 
+## atuin - Enhanced Shell History
+
+Replaces zsh history with SQLite-backed, searchable, context-aware history.
+
+### Key Bindings
+
+| Binding | Action |
+|---------|--------|
+| `ctrl+r` | Open Atuin search (replaces fzf history) |
+| `up` | Search history with current prefix |
+| `enter` | Select and run command |
+| `tab` | Select command without running |
+| `esc` | Cancel |
+
+### Search Interface
+
+| Key | Action |
+|-----|--------|
+| `ctrl+n` / `down` | Next result |
+| `ctrl+p` / `up` | Previous result |
+| `ctrl+d` | Delete selected command from history |
+| `ctrl+r` | Cycle through filter modes |
+
+### Commands
+
+```bash
+# View history statistics
+atuin stats
+
+# Search history from command line
+atuin search "git commit"
+
+# Import existing zsh history
+atuin import zsh
+
+# Sync history (if configured)
+atuin sync
+```
+
+### Filter Modes
+
+Press `ctrl+r` while in search to cycle through:
+- **global** - All history from all sessions
+- **host** - Only from current machine
+- **session** - Only from current terminal session
+- **directory** - Only commands run in current directory
+
+---
+
+## thefuck - Command Correction
+
+Automatically fixes your previous failed command.
+
+### Usage
+
+1. Run a command that fails
+2. Press `Esc` twice (or type `fuck` or `fk`)
+3. It suggests and runs the corrected command
+
+### Aliases
+
+| Alias | Action |
+|-------|--------|
+| `Esc Esc` | Fix last command (double-tap Escape) |
+| `fuck` | Fix last command |
+| `fk` | Fix last command (short alias) |
+
+### Examples
+
+```bash
+# Forgot sudo
+$ apt install vim
+E: Could not open lock file...
+$ fuck
+sudo apt install vim [enter/↑/↓/ctrl+c]
+
+# Git typo
+$ git pul
+git: 'pul' is not a git command.
+$ fuck
+git pull [enter/↑/↓/ctrl+c]
+
+# Wrong branch
+$ git push
+fatal: The current branch has no upstream...
+$ fuck
+git push --set-upstream origin main [enter/↑/↓/ctrl+c]
+
+# Missing directory
+$ cd /opt/myapp
+cd: no such file or directory: /opt/myapp
+$ fuck
+mkdir -p /opt/myapp && cd /opt/myapp [enter/↑/↓/ctrl+c]
+```
+
+### How It Works
+
+- Analyzes the error output from your last command
+- Has rules for hundreds of common mistakes
+- Suggests the most likely fix
+- Press Enter to run, or arrows to see alternatives
+
+---
+
+## fastfetch - System Info
+
+Displays system information with a logo on terminal startup.
+
+### Usage
+
+```bash
+# Run manually
+fastfetch
+
+# Customize output
+fastfetch --config /path/to/config.jsonc
+```
+
+### What It Shows
+
+- OS and kernel version
+- Host/model information
+- Uptime
+- Shell and terminal
+- CPU and GPU
+- Memory usage
+- Disk usage
+- And more...
+
+### Notes
+
+- Runs automatically on new terminal sessions (via welcome.sh)
+- Much faster than neofetch
+- Configurable via `~/.config/fastfetch/config.jsonc`
+
+---
+
 ## Quick Reference Card
 
 | Task | Command |
@@ -505,7 +645,7 @@ git rebase -i --autosquash HEAD~10  # Apply the fixup
 | **Search** | |
 | Find files by name | `fd readme` or `f readme` |
 | Find .ts files | `fd -e ts` |
-| Fuzzy search history | `ctrl+r` |
+| Fuzzy search history | `ctrl+r` (opens Atuin) |
 | Fuzzy search files | `ctrl+t` |
 | **Navigation** | |
 | Jump to directory | `z <partial-name>` |
@@ -521,7 +661,13 @@ git rebase -i --autosquash HEAD~10  # Apply the fixup
 | Kill process | `btop` → select → `k` |
 | Find large files | `dui` |
 | Delete large files | `dui` → `d` to mark → `x` to delete |
+| System info | `fastfetch` |
 | **Terminal** | |
 | New zellij pane | `ctrl+p` then `n` |
 | Split down | `ctrl+p` then `d` |
 | Switch pane | `ctrl+p` then arrow |
+| **History & Correction** | |
+| Search all history | `ctrl+r` (Atuin) |
+| History by directory | `ctrl+r` then `ctrl+r` to cycle filters |
+| History stats | `atuin stats` |
+| Fix last command | `Esc Esc` or `fuck` or `fk` |
