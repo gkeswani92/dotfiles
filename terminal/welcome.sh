@@ -1,14 +1,12 @@
 #!/bin/bash
 # Terminal Welcome Screen
-# Displays a customized welcome message with quotes and git info
+# Displays system info with fastfetch and current git project status
 
 # Colors
-BLUE='\033[0;34m'
-GREEN='\033[0;32m'
+PURPLE='\033[0;35m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
+GREEN='\033[0;32m'
 WHITE='\033[1;37m'
 BOLD='\033[1m'
 RESET='\033[0m'
@@ -16,14 +14,15 @@ RESET='\033[0m'
 # Clear the screen
 clear
 
-# Get dotfiles info
-DOTFILES_DIR="$DOTFILES_PATH"
-if [ -d "$DOTFILES_DIR" ]; then
-  LAST_COMMIT=$(cd "$DOTFILES_DIR" && git log -1 --pretty=format:"%h - %s (%ar)" 2>/dev/null)
-  BRANCH=$(cd "$DOTFILES_DIR" && git branch --show-current 2>/dev/null)
+# Display system info with fastfetch (shows Apple logo + stats)
+if command -v fastfetch &> /dev/null; then
+  fastfetch
+  echo ""
 else
-  LAST_COMMIT="Not a git repository"
-  BRANCH="N/A"
+  # Fallback if fastfetch not installed
+  echo -e "${GREEN}Welcome back, ${USER}!${RESET}"
+  echo -e "${YELLOW}$(date +"%A, %B %d, %Y %H:%M")${RESET}"
+  echo ""
 fi
 
 # Get current Git project status (if in a git repository)
@@ -42,13 +41,6 @@ if git -C "$CURRENT_DIR" rev-parse --is-inside-work-tree &>/dev/null; then
     GIT_INFO="$GIT_INFO ${GREEN}[clean]${RESET}"
   fi
 fi
-
-# Print welcome header
-echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${RESET}"
-echo -e "${BLUE}║                 ${GREEN}Welcome back, ${USER}!${BLUE}                        ║${RESET}"
-echo -e "${BLUE}║                ${YELLOW}$(date +"%A, %B %d, %Y %H:%M")${BLUE}                ║${RESET}"
-echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${RESET}"
-echo ""
 
 # Show current Git project info if in a git repository
 if [ -n "$GIT_INFO" ]; then

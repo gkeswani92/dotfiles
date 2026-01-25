@@ -119,13 +119,10 @@ alias bp-orgs-only-dev="zellij --layout ~/.config/zellij/bp-orgs-only.kdl"
 # Initialize Starship prompt
 eval "$(starship init zsh)"
 
-# Display welcome screen on new terminal sessions (deferred for faster prompt)
-# The welcome message shows after the prompt appears
+# Display welcome screen on new terminal sessions
+# fastfetch is optimized for speed, so we run it synchronously
 if [[ $- == *i* ]]; then  # Only run in interactive shells
-  {
-    sleep 0.1
-    $DOTFILES_PATH/terminal/welcome.sh
-  } &!
+  $DOTFILES_PATH/terminal/welcome.sh
 fi
 
 # Potentially dev related commands that were added to the dotfiles

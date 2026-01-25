@@ -95,6 +95,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "  - btop (system monitor)"
   echo "  - dua-cli (disk usage analyzer)"
   echo "  - atuin (enhanced shell history)"
+  echo "  - fastfetch (system info display)"
 
   # Install tools using our helper function
   brew_install_if_needed fzf
@@ -106,6 +107,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   brew_install_if_needed btop
   brew_install_if_needed dua-cli
   brew_install_if_needed atuin
+  brew_install_if_needed fastfetch
 else
   # Linux tools
   echo "Installing command-line tools via apt:"
@@ -122,6 +124,10 @@ else
   # Install atuin (shell history)
   echo "Installing atuin shell history..."
   curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | bash
+
+  # Install fastfetch (system info display)
+  echo "Installing fastfetch..."
+  sudo apt install -y fastfetch 2>/dev/null || echo "Note: fastfetch may need manual installation on older Linux versions"
 fi
 
 # Step 5: Set up Vim configuration
