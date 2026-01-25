@@ -1,0 +1,56 @@
+# Atuin Configuration
+# Enhanced shell history with SQLite backend and powerful search
+
+[settings]
+# Search mode: prefix, fulltext, fuzzy, skim
+# - prefix: match commands starting with query
+# - fulltext: match anywhere in command
+# - fuzzy: fuzzy matching (typo-tolerant)
+# - skim: skim-style fuzzy matching
+search_mode = "fuzzy"
+
+# Filter mode when searching:
+# - global: search all history
+# - host: search history from current host only
+# - session: search history from current session only
+# - directory: search history from current directory only
+filter_mode = "global"
+
+# Filter mode for shell up-arrow behavior
+filter_mode_shell_up_key_binding = "global"
+
+# Show preview of full command in search UI
+show_preview = true
+
+# Number of lines for the search interface
+inline_height = 20
+
+# Style: auto, full, compact
+# - auto: adapts to terminal size
+# - full: shows all information
+# - compact: minimal interface
+style = "auto"
+
+# Show help text in the search interface
+show_help = true
+
+# Exit on Esc (true) or require Ctrl+C (false)
+exit_mode = "return-original"
+
+# History format: "automatic", "us", "uk"
+history_format = "automatic"
+
+# Store command durations
+store_failed = true
+
+# Maximum number of items to sync (0 = unlimited)
+# sync_frequency = "0"
+
+# Disable sync (local only mode)
+# Set sync_address to enable sync with atuin server
+# sync_address = "https://api.atuin.sh"
+# sync_address = ""
+
+# Secrets filter - commands matching these patterns won't be recorded
+# Patterns are case-insensitive by default
+secrets_filter = true

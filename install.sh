@@ -94,6 +94,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "  - lazygit (git TUI client)"
   echo "  - btop (system monitor)"
   echo "  - dua-cli (disk usage analyzer)"
+  echo "  - atuin (enhanced shell history)"
 
   # Install tools using our helper function
   brew_install_if_needed fzf
@@ -104,6 +105,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   brew_install_if_needed lazygit
   brew_install_if_needed btop
   brew_install_if_needed dua-cli
+  brew_install_if_needed atuin
 else
   # Linux tools
   echo "Installing command-line tools via apt:"
@@ -116,6 +118,10 @@ else
   echo "Note: lazygit and dua-cli may need manual installation on Linux"
   echo "  lazygit: https://github.com/jesseduffield/lazygit#installation"
   echo "  dua-cli: cargo install dua-cli"
+
+  # Install atuin (shell history)
+  echo "Installing atuin shell history..."
+  curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | bash
 fi
 
 # Step 5: Set up Vim configuration
@@ -157,6 +163,7 @@ echo "Creating symlinks to connect dotfiles with their expected locations"
 
 # Ensure config directories exist
 mkdir -p ~/.config/zellij/layouts
+mkdir -p ~/.config/atuin
 mkdir -p ~/Library/Application\ Support/Code/User/
 
 # Create all symlinks
@@ -166,6 +173,7 @@ ln -sf $DOTFILES_PATH/terminal/tmux/tmux.conf ~/.tmux.conf
 ln -sf $DOTFILES_PATH/shell/.zshrc ~/.zshrc
 ln -sf $DOTFILES_PATH/vim/.vimrc ~/.vimrc
 ln -sf $DOTFILES_PATH/terminal/prompt/starship/starship.toml ~/.config/starship.toml
+ln -sf $DOTFILES_PATH/terminal/atuin/config.toml ~/.config/atuin/config.toml
 
 # Set up Zellij configuration
 echo "Setting up Zellij configuration..."

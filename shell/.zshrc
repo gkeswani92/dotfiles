@@ -105,6 +105,13 @@ if [ -f "$DOTFILES_PATH/terminal/history/fzf-history.zsh" ]; then
   source "$DOTFILES_PATH/terminal/history/fzf-history.zsh"
 fi
 
+# Atuin - Enhanced shell history with SQLite backend
+# Provides fuzzy search, sync across machines, and command statistics
+# Key bindings: Ctrl+R for search, Up arrow for prefix search
+if command -v atuin &> /dev/null; then
+  eval "$(atuin init zsh)"
+fi
+
 # Local development environment aliases
 alias bp-full-local-dev="zellij --layout  ~/.config/zellij/bp-full.kdl"
 alias bp-orgs-only-dev="zellij --layout ~/.config/zellij/bp-orgs-only.kdl"
