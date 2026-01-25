@@ -96,6 +96,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "  - dua-cli (disk usage analyzer)"
   echo "  - atuin (enhanced shell history)"
   echo "  - fastfetch (system info display)"
+  echo "  - thefuck (command correction)"
 
   # Install tools using our helper function
   brew_install_if_needed fzf
@@ -108,6 +109,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   brew_install_if_needed dua-cli
   brew_install_if_needed atuin
   brew_install_if_needed fastfetch
+  brew_install_if_needed thefuck
 else
   # Linux tools
   echo "Installing command-line tools via apt:"
@@ -128,6 +130,10 @@ else
   # Install fastfetch (system info display)
   echo "Installing fastfetch..."
   sudo apt install -y fastfetch 2>/dev/null || echo "Note: fastfetch may need manual installation on older Linux versions"
+
+  # Install thefuck (command correction)
+  echo "Installing thefuck..."
+  pip3 install thefuck --user 2>/dev/null || sudo pip3 install thefuck
 fi
 
 # Step 5: Set up Vim configuration

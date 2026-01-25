@@ -78,6 +78,11 @@ fi
 # Initialise completions with ZSH's compinit
 autoload -Uz compinit && compinit
 
+# Command correction - suggests fixes for typos
+setopt CORRECT
+setopt CORRECT_ALL  # Also correct arguments
+SPROMPT='Correct %R to %r? [Yes, No, Abort, Edit] '
+
 # User configuration
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
@@ -110,6 +115,13 @@ fi
 # Key bindings: Ctrl+R for search, Up arrow for prefix search
 if command -v atuin &> /dev/null; then
   eval "$(atuin init zsh)"
+fi
+
+# thefuck - Press Esc twice to fix last failed command
+# Also available as 'fuck' or 'fk' aliases
+if command -v thefuck &> /dev/null; then
+  eval "$(thefuck --alias)"
+  eval "$(thefuck --alias fk)"
 fi
 
 # Local development environment aliases
