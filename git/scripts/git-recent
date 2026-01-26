@@ -1,0 +1,71 @@
+#!/bin/bash
+#
+# git-recent - Show recently checked out branches
+#
+# Usage:
+#   git recent        # List recent branches
+#   git recent -n 10  # Show last 10 branches
+#   git recent -c     # Checkout selected branch (with fzf)
+#
+# Great for quickly switching back to branches you were working on.
+
+set -e
+
+count=15
+checkout=false
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -n|--number)
+      count="$2"
+      shift 2
+      ;;
+    -c|--checkout)
+      checkout=true
+      shift
+      ;;
+    -h|--help)
+      echo "Usage: git recent [-n count] [-c]"
+      echo ""
+      echo "Options:"
+      echo "  -n, --number   Number of branches to show (default: 15)"
+      echo "  -c, --checkout Interactively checkout a recent branch (requires fzf)"
+      echo "  -h, --help     Show this help message"
+      exit 0
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+# Get recent branches from reflog
+recent_branches() {
+  git reflog | \
+    grep -o "checkout: moving from .* to .*" | \
+    sed 's/checkout: moving from .* to //' | \
+    grep -v "^[a-f0-9]\{40\}$" | \
+    awk '!seen[$0]++' | \
+    head -"$count"
+}
+
+if [ "$checkout" = true ]; then
+  if ! command -v fzf &> /dev/null; then
+    echo "Error: fzf is required for interactive checkout"
+    echo "Install with: brew install fzf"
+    exit 1
+  fi
+
+  branch=$(recent_branches | fzf --height=20 --reverse --prompt="Checkout branch: ")
+
+  if [ -n "$branch" ]; then
+    git checkout "$branch"
+  else
+    echo "No branch selected"
+  fi
+else
+  echo "Recent branches:"
+  echo ""
+  recent_branches | nl -w2 -s'. '
+fi

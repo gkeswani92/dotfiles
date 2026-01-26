@@ -55,7 +55,7 @@ ZSH_CUSTOM=${ZSH_CUSTOM:=$HOME/.oh-my-zsh/custom}
 print_section "Setting up Git enhancements"
 echo "Installing custom Git scripts for improved workflows"
 sudo cp -r $DOTFILES_PATH/git/scripts/* /usr/local/bin/
-sudo chmod 755 /usr/local/bin/git-cob  # More secure permissions (rwxr-xr-x)
+sudo chmod 755 /usr/local/bin/git-cob /usr/local/bin/git-fixup /usr/local/bin/git-recent  # More secure permissions (rwxr-xr-x)
 
 echo "Installing Git tools (interactive rebase, delta for better diffs)"
 if [[ "$OSTYPE" == "darwin"* ]]; then

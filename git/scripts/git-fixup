@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# git-fixup - Create a fixup commit and optionally autosquash
+#
+# Usage:
+#   git fixup <commit>           # Create fixup commit for <commit>
+#   git fixup <commit> --squash  # Create and immediately autosquash
+#   git fixup                    # Interactive: select commit with fzf
+#
+# This is useful when you want to amend a previous commit that isn't the most recent.
+
+set -e
+
+# If no argument, use fzf to select a commit
+if [ -z "$1" ]; then
+  if ! command -v fzf &> /dev/null; then
+    echo "Usage: git fixup <commit-hash>"
+    echo "       Install fzf for interactive selection"
+    exit 1
+  fi
+
+  commit=$(git log --oneline -50 | fzf --height=20 --reverse --prompt="Select commit to fixup: " | awk '{print $1}')
+
+  if [ -z "$commit" ]; then
+    echo "No commit selected"
+    exit 1
+  fi
+else
+  commit="$1"
+fi
+
+# Check if --squash flag is provided
+autosquash=false
+if [ "$2" = "--squash" ] || [ "$1" = "--squash" ]; then
+  autosquash=true
+fi
+
+# Verify the commit exists
+if ! git rev-parse --verify "$commit" &> /dev/null; then
+  echo "Error: Invalid commit reference '$commit'"
+  exit 1
+fi
+
+# Create the fixup commit
+echo "Creating fixup commit for $(git log -1 --oneline $commit)"
+git commit --fixup="$commit"
+
+# Optionally autosquash
+if [ "$autosquash" = true ]; then
+  echo "Running interactive rebase with autosquash..."
+  GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash "$commit"~1
+fi
