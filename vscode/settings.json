@@ -14,6 +14,7 @@
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "modificationsIfAvailable",
   "editor.formatOnPaste": false,
   "editor.wordWrap": "off",
   "editor.renderWhitespace": "boundary",
@@ -71,6 +72,7 @@
   ],
   // File handling
   "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
   "files.eol": "\n",
   "files.exclude": {
     "**/.git": true,
@@ -89,7 +91,6 @@
     "**/coverage/**": true
   },
   "files.associations": {
-    "*.json": "jsonc",
     "*.jsx": "javascriptreact",
     "*.tsx": "typescriptreact"
   },
@@ -111,7 +112,7 @@
   "gitlens.hovers.currentLine.over": "line",
   "gitlens.views.repositories.location": "scm",
   // Extensions
-  "extensions.ignoreRecommendations": true,
+  "extensions.ignoreRecommendations": false,
   // Search
   "search.exclude": {
     "**/node_modules": true,
