@@ -142,6 +142,35 @@ echo "Installing Vim color schemes and plugins"
 mkdir -p $HOME/.vim/colors
 cp $DOTFILES_PATH/vim/colors/* $HOME/.vim/colors/
 
+# Step 5b: Set up Neovim with LazyVim
+print_section "Setting up Neovim"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  brew_install_if_needed neovim
+else
+  echo "Installing Neovim..."
+  sudo apt-get install -y neovim 2>/dev/null || {
+    echo "Installing Neovim from appimage..."
+    curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+    chmod u+x nvim.appimage
+    sudo mv nvim.appimage /usr/local/bin/nvim
+  }
+fi
+
+echo "Linking Neovim configuration (LazyVim)..."
+mkdir -p $HOME/.config/nvim
+# Remove existing nvim config if it exists (backup first)
+if [ -d "$HOME/.config/nvim" ] && [ ! -L "$HOME/.config/nvim" ]; then
+  if [ "$(ls -A $HOME/.config/nvim 2>/dev/null)" ]; then
+    echo "Backing up existing nvim config to ~/.config/nvim.backup"
+    mv $HOME/.config/nvim $HOME/.config/nvim.backup
+    mkdir -p $HOME/.config/nvim
+  fi
+fi
+ln -sf $DOTFILES_PATH/nvim/init.lua $HOME/.config/nvim/init.lua
+ln -sf $DOTFILES_PATH/nvim/lua $HOME/.config/nvim/lua
+ln -sf $DOTFILES_PATH/nvim/.stylua.toml $HOME/.config/nvim/.stylua.toml
+echo "Neovim configured! Run 'nvim' to install plugins automatically."
+
 # Step 6: Configure terminal aesthetics
 print_section "Enhancing terminal appearance"
 if [[ "$OSTYPE" == "darwin"* ]]; then
