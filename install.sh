@@ -158,18 +158,23 @@ fi
 
 echo "Linking Neovim configuration (LazyVim)..."
 mkdir -p $HOME/.config/nvim
-# Remove existing nvim config if it exists (backup first)
-if [ -d "$HOME/.config/nvim" ] && [ ! -L "$HOME/.config/nvim" ]; then
-  if [ "$(ls -A $HOME/.config/nvim 2>/dev/null)" ]; then
-    echo "Backing up existing nvim config to ~/.config/nvim.backup"
-    mv $HOME/.config/nvim $HOME/.config/nvim.backup
+
+# Check if symlinks already point to our dotfiles
+if [ -L "$HOME/.config/nvim/init.lua" ] && [ "$(readlink $HOME/.config/nvim/init.lua)" = "$DOTFILES_PATH/nvim/init.lua" ]; then
+  echo "Neovim symlinks already configured, skipping..."
+else
+  # Backup existing config if it's not empty and not already our symlinks
+  if [ -d "$HOME/.config/nvim" ] && [ "$(ls -A $HOME/.config/nvim 2>/dev/null)" ]; then
+    backup_name="nvim.backup.$(date +%Y%m%d%H%M%S)"
+    echo "Backing up existing nvim config to ~/.config/$backup_name"
+    mv $HOME/.config/nvim $HOME/.config/$backup_name
     mkdir -p $HOME/.config/nvim
   fi
+  ln -sf $DOTFILES_PATH/nvim/init.lua $HOME/.config/nvim/init.lua
+  ln -sf $DOTFILES_PATH/nvim/lua $HOME/.config/nvim/lua
+  ln -sf $DOTFILES_PATH/nvim/.stylua.toml $HOME/.config/nvim/.stylua.toml
+  echo "Neovim configured! Run 'nvim' to install plugins automatically."
 fi
-ln -sf $DOTFILES_PATH/nvim/init.lua $HOME/.config/nvim/init.lua
-ln -sf $DOTFILES_PATH/nvim/lua $HOME/.config/nvim/lua
-ln -sf $DOTFILES_PATH/nvim/.stylua.toml $HOME/.config/nvim/.stylua.toml
-echo "Neovim configured! Run 'nvim' to install plugins automatically."
 
 # Step 6: Configure terminal aesthetics
 print_section "Enhancing terminal appearance"
@@ -283,6 +288,31 @@ else
   echo "GitHub CLI (gh) not found - skipping Copilot installation"
   echo "To install GitHub CLI later, visit: https://cli.github.com/"
 fi
+
+# Step 13: Set up Claude Code configuration
+print_section "Setting up Claude Code"
+echo "Configuring Claude Code skills and hooks"
+
+# Create Claude Code directories
+mkdir -p $HOME/.claude/skills
+
+# Symlink all skills from dotfiles
+echo "Linking Claude Code skills..."
+for skill_dir in $DOTFILES_PATH/claude_configuration/skills/*/; do
+  skill_name=$(basename "$skill_dir")
+  # Use ln -sfn: -s (symbolic), -f (force), -n (no-dereference - treat symlink to dir as file)
+  ln -sfn "${skill_dir%/}" "$HOME/.claude/skills/$skill_name"
+  echo "  Linked skill: $skill_name"
+done
+
+# Make hook scripts executable
+echo "Setting up Claude Code hooks..."
+if [ -d "$DOTFILES_PATH/claude_configuration/hooks" ]; then
+  chmod +x $DOTFILES_PATH/claude_configuration/hooks/*.sh 2>/dev/null || true
+  echo "  Made hook scripts executable"
+fi
+
+echo "Claude Code configuration complete!"
 
 # Completion message
 print_section "Installation Complete!"
