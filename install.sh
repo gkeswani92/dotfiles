@@ -296,6 +296,10 @@ echo "Configuring Claude Code skills and hooks"
 # Create Claude Code directories
 mkdir -p $HOME/.claude/skills
 
+# Symlink global CLAUDE.md
+echo "Linking global CLAUDE.md..."
+ln -sf $DOTFILES_PATH/claude_configuration/CLAUDE.md $HOME/.claude/CLAUDE.md
+
 # Symlink all skills from dotfiles
 echo "Linking Claude Code skills..."
 for skill_dir in $DOTFILES_PATH/claude_configuration/skills/*/; do

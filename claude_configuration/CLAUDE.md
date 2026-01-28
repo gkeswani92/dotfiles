@@ -1,5 +1,68 @@
 # Global Claude Configuration
 
+## Behavioral Guidelines
+
+### 1. Think Before Coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+Before implementing:
+
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+### 2. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+### 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it - don't delete it.
+
+When your changes create orphans:
+
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+### 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
+
+```txt
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
 ## Dev Execution Requirements
 
 **CRITICAL: Always use /opt/dev/bin/dev for dev commands**
@@ -7,34 +70,3 @@
 The path for `dev` commands like `dev test`, `dev style`, `dev server`, etc. are accessible via `/opt/dev/bin/dev`
 
 When running commands in background or non-interactive shells, always use the full path `/opt/dev/bin/dev` instead of just `dev`.
-
-## Searching Slack for Shopify Problems
-
-When solving Shopify-related problems where you don't immediately know the answer:
-
-1. **Search Slack first** - Shopify uses Slack for all communications and problem-solving
-2. **Use:** `shopify-dw.people.slack_messages` via data-portal-mcp tool
-3. **Search for:**
-   - Error messages or keywords from the problem
-   - Related feature/component names
-   - Recent discussions (last 6 months)
-   - Team decisions or context
-   - Links to PRs, docs, or solutions
-
-**Example query:**
-
-```sql
-SELECT user_name, message, message_at, channel_name
-FROM `shopify-dw.people.slack_messages`
-WHERE TIMESTAMP_TRUNC(message_at, DAY) >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
-  AND (message LIKE '%keyword1%' OR message LIKE '%keyword2%')
-ORDER BY message_at DESC
-LIMIT 20
-```
-
-**When to search:**
-
-- Before saying "I don't know"
-- When codebase search doesn't reveal context
-- For recent changes, decisions, or discussions
-- When error messages or issues seem familiar to the team
