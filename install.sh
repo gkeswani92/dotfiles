@@ -316,6 +316,12 @@ if [ -d "$DOTFILES_PATH/claude_configuration/hooks" ]; then
   echo "  Made hook scripts executable"
 fi
 
+# Set up status line script
+echo "Linking Claude Code status line..."
+chmod +x $DOTFILES_PATH/claude_configuration/statusline.sh
+ln -sf $DOTFILES_PATH/claude_configuration/statusline.sh $HOME/.claude/statusline.sh
+echo "  Linked statusline.sh"
+
 echo "Claude Code configuration complete!"
 
 # Completion message
