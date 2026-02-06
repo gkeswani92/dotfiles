@@ -9,16 +9,17 @@ Quick reference for all tools installed via dotfiles.
 1. [fzf - Fuzzy Finder](#fzf---fuzzy-finder)
 2. [eza - Modern ls](#eza---modern-ls)
 3. [zoxide - Smart cd](#zoxide---smart-cd)
-4. [zellij - Terminal Multiplexer](#zellij---terminal-multiplexer)
-5. [fd - Fast File Search](#fd---fast-file-search)
-6. [lazygit - Git TUI Client](#lazygit---git-tui-client)
-7. [btop - System Monitor](#btop---system-monitor)
-8. [dua - Disk Usage Analyzer](#dua---disk-usage-analyzer)
-9. [git-delta - Better Diffs](#git-delta---better-diffs)
-10. [git-absorb - Auto Fixup Commits](#git-absorb---auto-fixup-commits)
-11. [atuin - Enhanced Shell History](#atuin---enhanced-shell-history)
-12. [thefuck - Command Correction](#thefuck---command-correction)
-13. [fastfetch - System Info](#fastfetch---system-info)
+4. [tmux - Terminal Multiplexer](#tmux---terminal-multiplexer)
+5. [zellij - Terminal Multiplexer](#zellij---terminal-multiplexer)
+6. [fd - Fast File Search](#fd---fast-file-search)
+7. [lazygit - Git TUI Client](#lazygit---git-tui-client)
+8. [btop - System Monitor](#btop---system-monitor)
+9. [dua - Disk Usage Analyzer](#dua---disk-usage-analyzer)
+10. [git-delta - Better Diffs](#git-delta---better-diffs)
+11. [git-absorb - Auto Fixup Commits](#git-absorb---auto-fixup-commits)
+12. [atuin - Enhanced Shell History](#atuin---enhanced-shell-history)
+13. [thefuck - Command Correction](#thefuck---command-correction)
+14. [fastfetch - System Info](#fastfetch---system-info)
 
 ---
 
@@ -132,6 +133,51 @@ zi proj                         # Browse matches for "proj"
 # - Ranks by "frecency" (frequency + recency)
 # - Partial matches work (z dot → ~/dotfiles)
 ```
+
+---
+
+## tmux - Terminal Multiplexer
+
+Terminal multiplexer for persistent sessions, split panes, and Claude Code agent teams.
+
+> **Full tutorial:** See [terminal/tmux/TUTORIAL.md](tmux/TUTORIAL.md) for the complete guide.
+
+### Quick Start
+
+```bash
+tmux new -s work        # Start named session
+# Prefix is Ctrl+a (not the default Ctrl+b)
+Prefix + |              # Split horizontally
+Prefix + -              # Split vertically
+Prefix + d              # Detach (session keeps running)
+tmux a -t work          # Reattach later
+```
+
+### Key Bindings (Prefix = Ctrl+a)
+
+| Binding | Action |
+|---------|--------|
+| `Prefix + \|` | Split horizontally |
+| `Prefix + -` | Split vertically |
+| `Alt + Arrow` | Move between panes (no prefix) |
+| `Prefix + h/j/k/l` | Move between panes (vim style) |
+| `Prefix + z` | Zoom pane (toggle fullscreen) |
+| `Prefix + c` | New window |
+| `Prefix + n/p` | Next/previous window |
+| `Prefix + d` | Detach session |
+| `Prefix + s` | Session picker |
+| `Prefix + [` | Enter copy mode (vim keys) |
+| `Prefix + Ctrl+s` | Save session (resurrect) |
+| `Prefix + Ctrl+r` | Restore session (resurrect) |
+| `Prefix + I` | Install plugins (TPM) |
+| `Prefix + r` | Reload config |
+
+### Plugins (via TPM)
+
+- **tmux-sensible** — better defaults
+- **tmux-resurrect** — save/restore sessions across restarts
+- **tmux-continuum** — auto-save every 15 min, auto-restore on start
+- **tmux-yank** — cross-platform clipboard
 
 ---
 
@@ -662,7 +708,14 @@ fastfetch --config /path/to/config.jsonc
 | Find large files | `dui` |
 | Delete large files | `dui` → `d` to mark → `x` to delete |
 | System info | `fastfetch` |
-| **Terminal** | |
+| **Terminal (tmux)** | |
+| Split pane right | `Prefix + \|` |
+| Split pane down | `Prefix + -` |
+| Switch pane | `Alt + Arrow` |
+| Zoom pane | `Prefix + z` |
+| Detach session | `Prefix + d` |
+| Reattach session | `tmux a` |
+| **Terminal (zellij)** | |
 | New zellij pane | `ctrl+p` then `n` |
 | Split down | `ctrl+p` then `d` |
 | Switch pane | `ctrl+p` then arrow |

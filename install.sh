@@ -86,6 +86,7 @@ print_section "Installing development tools and utilities"
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS tools
   echo "Installing command-line tools via Homebrew:"
+  echo "  - tmux (terminal multiplexer)"
   echo "  - fzf (fuzzy finder)"
   echo "  - eza (modern ls replacement)"
   echo "  - git-absorb (automatically create fixup commits)"
@@ -99,6 +100,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "  - thefuck (command correction)"
 
   # Install tools using our helper function
+  brew_install_if_needed tmux
   brew_install_if_needed fzf
   brew_install_if_needed eza
   brew_install_if_needed git-absorb
@@ -113,6 +115,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else
   # Linux tools
   echo "Installing command-line tools via apt:"
+  sudo apt-get install -y tmux
   sudo apt-get install -y fzf
   sudo apt-get install -y exa
   sudo apt install -y git-absorb
@@ -254,6 +257,15 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   else
     echo "Couldn't create Cursor settings directory"
   fi
+fi
+
+# Install TPM (Tmux Plugin Manager)
+echo "Setting up Tmux Plugin Manager..."
+if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+  git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
+  echo "TPM installed. Start tmux and press prefix + I to install plugins."
+else
+  echo "TPM already installed"
 fi
 
 # Step 8: Install and configure shell prompt
