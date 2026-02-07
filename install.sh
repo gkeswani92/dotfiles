@@ -336,6 +336,12 @@ echo "  Linked statusline.sh"
 
 echo "Claude Code configuration complete!"
 
+# Step 14: Set up Quick Demo CLI
+print_section "Setting up Quick Demo CLI"
+echo "Installing demo launcher for quick.shopify.io demos"
+chmod +x $DOTFILES_PATH/quick-demo/install.sh
+$DOTFILES_PATH/quick-demo/install.sh
+
 # Post-install verification
 print_section "Verifying Installation"
 
@@ -373,7 +379,7 @@ done
 # Check CLI tools
 echo ""
 echo "CLI Tools:"
-for cmd in fzf starship eza bat fd zoxide atuin lazygit btop; do
+for cmd in fzf starship eza bat fd zoxide atuin lazygit btop gum demo; do
   if command -v "$cmd" &>/dev/null; then
     check_pass "$cmd"
   else

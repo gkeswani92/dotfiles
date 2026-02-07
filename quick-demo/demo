@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DEMOS_DIR="$HOME/Documents/demos"
+
+# Load nvm if available (needed for quick CLI)
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+# --- Pre-flight checks ---
+if ! command -v gum &>/dev/null; then
+  echo "Error: gum is not installed."
+  echo "Run: brew install gum"
+  exit 1
+fi
+
+if ! command -v quick &>/dev/null; then
+  echo "Error: quick CLI not found (Shopify-only package)."
+  echo "Install with: npm i -g @shopify/quick"
+  exit 1
+fi
+
+# --- Scan demos ---
+if [ ! -d "$DEMOS_DIR" ] || [ -z "$(ls -A "$DEMOS_DIR")" ]; then
+  echo "No demos found in $DEMOS_DIR"
+  exit 1
+fi
+
+demos=()
+for d in "$DEMOS_DIR"/*/; do
+  demos+=("$(basename "$d")")
+done
+
+if [ ${#demos[@]} -eq 0 ]; then
+  echo "No demo folders found in $DEMOS_DIR"
+  exit 1
+fi
+
+# --- Header ---
+gum style --border rounded --padding "0 2" --bold --foreground 212 "Quick Demo Launcher"
+
+# --- Select demo ---
+selected=$(printf '%s\n' "${demos[@]}" | gum filter --placeholder "Search demos...")
+
+if [ -z "$selected" ]; then
+  echo "No demo selected."
+  exit 0
+fi
+
+# --- Select action ---
+action=$(gum choose "Serve locally" "Deploy to production")
+
+demo_path="$DEMOS_DIR/$selected"
+url=""
+
+if [ "$action" = "Serve locally" ]; then
+  # Run quick serve in background, read output until we find the URL
+  cd "$demo_path"
+
+  # Start server, tee output so user sees it
+  exec 3< <(quick serve 2>&1)
+  server_pid=$!
+
+  # Read lines until we find a URL
+  while IFS= read -r line <&3; do
+    echo "$line"
+    found=$(echo "$line" | grep -oE 'https?://[^ ]+' || true)
+    if [ -n "$found" ]; then
+      url="$found"
+      break
+    fi
+  done
+
+  if [ -z "$url" ]; then
+    echo "Could not detect server URL."
+    exit 1
+  fi
+
+  echo ""
+  gum style --foreground 10 "Server running at: $url"
+  echo ""
+
+  # --- Post-action menu ---
+  post=$(gum choose "Open in browser" "Copy URL to clipboard" "Exit")
+
+  case "$post" in
+    "Open in browser") open "$url" ;;
+    "Copy URL to clipboard") echo -n "$url" | pbcopy && echo "Copied!" ;;
+    "Exit") ;;
+  esac
+
+  # Hand control back to the server — Ctrl+C to stop
+  echo ""
+  echo "Press Ctrl+C to stop the server."
+  cat <&3
+
+elif [ "$action" = "Deploy to production" ]; then
+  cd "$demo_path"
+
+  # Deploy — stream to terminal so user sees output and can answer prompts
+  output=$(quick deploy . "$selected" 2>&1 | tee /dev/tty) || true
+
+  url=$(echo "$output" | grep -oE 'https?://[^ ]+' | tail -1 || true)
+
+  if [ -z "$url" ]; then
+    echo "Could not detect deployed URL."
+    exit 1
+  fi
+
+  echo ""
+  gum style --foreground 10 "Deployed to: $url"
+  echo ""
+
+  # --- Post-action menu ---
+  post=$(gum choose "Open in browser" "Copy URL to clipboard" "Exit")
+
+  case "$post" in
+    "Open in browser") open "$url" ;;
+    "Copy URL to clipboard") echo -n "$url" | pbcopy && echo "Copied!" ;;
+    "Exit") ;;
+  esac
+fi
