@@ -139,3 +139,6 @@ if command -v dua &> /dev/null; then
   alias dui='dua interactive'
   alias dus='dua --apparent-size'
 fi
+
+# Dotfiles doctor - environment health check
+alias dotfiles-doctor="$DOTFILES_PATH/doctor.sh"
