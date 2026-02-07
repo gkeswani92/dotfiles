@@ -336,6 +336,75 @@ echo "  Linked statusline.sh"
 
 echo "Claude Code configuration complete!"
 
+# Post-install verification
+print_section "Verifying Installation"
+
+verify_pass=0
+verify_fail=0
+
+check_pass() {
+  echo -e "  \033[0;32m✓\033[0m $1"
+  ((verify_pass++))
+}
+
+check_fail() {
+  echo -e "  \033[0;31m✗\033[0m $1"
+  ((verify_fail++))
+}
+
+# Check symlinks
+echo "Symlinks:"
+for pair in \
+  "$HOME/.gitconfig:$DOTFILES_PATH/git/.gitconfig" \
+  "$HOME/.zshrc:$DOTFILES_PATH/shell/.zshrc" \
+  "$HOME/.vimrc:$DOTFILES_PATH/vim/.vimrc" \
+  "$HOME/.tmux.conf:$DOTFILES_PATH/terminal/tmux/tmux.conf" \
+  "$HOME/.config/starship.toml:$DOTFILES_PATH/terminal/prompt/starship/starship.toml" \
+  "$HOME/.config/atuin/config.toml:$DOTFILES_PATH/terminal/atuin/config.toml"; do
+  link="${pair%%:*}"
+  name=$(basename "$link")
+  if [ -L "$link" ] && [ -e "$link" ]; then
+    check_pass "$name"
+  else
+    check_fail "$name (missing or dangling)"
+  fi
+done
+
+# Check CLI tools
+echo ""
+echo "CLI Tools:"
+for cmd in fzf starship eza bat fd zoxide atuin lazygit btop; do
+  if command -v "$cmd" &>/dev/null; then
+    check_pass "$cmd"
+  else
+    check_fail "$cmd not found"
+  fi
+done
+
+# Check Oh-My-Zsh plugins
+echo ""
+echo "Oh-My-Zsh Plugins:"
+ZSH_CUSTOM=${ZSH_CUSTOM:=$HOME/.oh-my-zsh/custom}
+for plugin in zsh-autosuggestions zsh-syntax-highlighting fzf-tab; do
+  if [ -d "$ZSH_CUSTOM/plugins/$plugin" ]; then
+    check_pass "$plugin"
+  else
+    check_fail "$plugin not found"
+  fi
+done
+
+# Check TPM
+echo ""
+echo "Tmux:"
+if [ -d "$HOME/.tmux/plugins/tpm" ]; then
+  check_pass "TPM installed"
+else
+  check_fail "TPM not found"
+fi
+
+echo ""
+echo -e "Results: \033[0;32m${verify_pass} passed\033[0m, \033[0;31m${verify_fail} failed\033[0m"
+
 # Completion message
 print_section "Installation Complete!"
 echo "Your development environment has been successfully configured."
