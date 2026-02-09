@@ -14,7 +14,7 @@
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.formatOnSave": true,
-  "editor.formatOnSaveMode": "modificationsIfAvailable",
+  "editor.formatOnSaveMode": "file",
   "editor.formatOnPaste": false,
   "editor.wordWrap": "off",
   "editor.renderWhitespace": "boundary",
@@ -112,7 +112,7 @@
   "gitlens.hovers.currentLine.over": "line",
   "gitlens.views.repositories.location": "scm",
   // Extensions
-  "extensions.ignoreRecommendations": false,
+  "extensions.ignoreRecommendations": true,
   // Search
   "search.exclude": {
     "**/node_modules": true,
