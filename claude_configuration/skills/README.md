@@ -30,6 +30,12 @@ Quick-reference index of all skills in this directory.
 | `quick-demo` | Create quick.shopify.io demo of last response | Deploying quick demos |
 | `rewrite-github-issue` | Fetch a GitHub issue via CLI and clean it up | Rewriting GitHub issues |
 
+## Research & Documentation
+
+| Skill | Description | Trigger |
+|-------|-------------|---------|
+| `deep-dive` | Research a codebase topic and generate a developer textbook with chapters, diagrams, and reading paths | Exploring a new system, component, or domain |
+
 ## Utility
 
 | Skill | Description | Trigger |

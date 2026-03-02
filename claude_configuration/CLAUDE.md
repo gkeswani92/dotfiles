@@ -63,6 +63,12 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+## Organizations Codebase Conventions
+
+- **StatsD**: Always use `BusinessPlatformStatsD.track(` instead of `StatsD.increment` — it adds data tag cleaning.
+- **Verdict flags in tests**: Always use the `Verdict.disable_flag_for` helper — no manual stubbing of `Verdict::Flag.enabled?`.
+- **Avoid OpenStruct**: Use `Struct` or `Data.define` instead. OpenStruct is discouraged.
+
 ## Dev Execution Requirements
 
 **CRITICAL: Always use /opt/dev/bin/dev for dev commands**
