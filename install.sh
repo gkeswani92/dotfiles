@@ -357,6 +357,27 @@ for skill_dir in $DOTFILES_PATH/ai/skills/*/; do
   fi
 done
 
+# Symlink pi-specific skill overrides (force-replace shared versions)
+echo "Linking Pi-specific skill overrides..."
+for skill_dir in $DOTFILES_PATH/ai/pi-skills/*/; do
+  [ -d "$skill_dir" ] || continue
+  skill_name=$(basename "$skill_dir")
+  target="$PI_DIR/skills/$skill_name"
+  ln -sfn "${skill_dir%/}" "$target"
+  echo "  Overrode skill: $skill_name"
+done
+
+# Symlink agent definitions for Pi subagent tool
+echo "Linking Pi agents..."
+mkdir -p "$PI_DIR/agents"
+for agent_file in $DOTFILES_PATH/ai/agents/*.md; do
+  [ -f "$agent_file" ] || continue
+  agent_name=$(basename "$agent_file")
+  target="$PI_DIR/agents/$agent_name"
+  ln -sf "$agent_file" "$target"
+  echo "  Linked agent: $agent_name"
+done
+
 # Symlink CLAUDE.md as AGENTS.md for Pi
 echo "Linking Pi AGENTS.md..."
 ln -sf "$DOTFILES_PATH/ai/CLAUDE.md" "$PI_DIR/AGENTS.md"
