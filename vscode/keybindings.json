@@ -30,5 +30,10 @@
   {
     "key": "cmd+k cmd+d",
     "command": "editor.action.moveSelectionToNextFindMatch"
+  },
+  {
+    "key": "alt+cmd+s",
+    "command": "workbench.action.toggleUnifiedSidebarFromKeyboard",
+    "when": "cursor.agentIdeUnification.enabled == true && !isAuxiliaryWindowFocusedContext"
   }
 ]

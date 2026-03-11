@@ -299,11 +299,11 @@ mkdir -p $HOME/.claude/skills
 
 # Symlink global CLAUDE.md
 echo "Linking global CLAUDE.md..."
-ln -sf $DOTFILES_PATH/claude_configuration/CLAUDE.md $HOME/.claude/CLAUDE.md
+ln -sf $DOTFILES_PATH/ai/CLAUDE.md $HOME/.claude/CLAUDE.md
 
 # Symlink all skills from dotfiles
 echo "Linking Claude Code skills..."
-for skill_dir in $DOTFILES_PATH/claude_configuration/skills/*/; do
+for skill_dir in $DOTFILES_PATH/ai/skills/*/; do
   skill_name=$(basename "$skill_dir")
   # Use ln -sfn: -s (symbolic), -f (force), -n (no-dereference - treat symlink to dir as file)
   ln -sfn "${skill_dir%/}" "$HOME/.claude/skills/$skill_name"
@@ -312,15 +312,15 @@ done
 
 # Make hook scripts executable
 echo "Setting up Claude Code hooks..."
-if [ -d "$DOTFILES_PATH/claude_configuration/hooks" ]; then
-  chmod +x $DOTFILES_PATH/claude_configuration/hooks/*.sh 2>/dev/null || true
+if [ -d "$DOTFILES_PATH/ai/hooks" ]; then
+  chmod +x $DOTFILES_PATH/ai/hooks/*.sh 2>/dev/null || true
   echo "  Made hook scripts executable"
 fi
 
 # Set up status line script
 echo "Linking Claude Code status line..."
-chmod +x $DOTFILES_PATH/claude_configuration/statusline.sh
-ln -sf $DOTFILES_PATH/claude_configuration/statusline.sh $HOME/.claude/statusline.sh
+chmod +x $DOTFILES_PATH/ai/statusline.sh
+ln -sf $DOTFILES_PATH/ai/statusline.sh $HOME/.claude/statusline.sh
 echo "  Linked statusline.sh"
 
 echo "Claude Code configuration complete!"
@@ -342,10 +342,14 @@ mkdir -p "$PI_DIR/skills"
 
 # Symlink skills from dotfiles, skip any that already exist (e.g. from shop-pi-fy package)
 echo "Linking Pi skills..."
-for skill_dir in $DOTFILES_PATH/claude_configuration/skills/*/; do
+for skill_dir in $DOTFILES_PATH/ai/skills/*/; do
   skill_name=$(basename "$skill_dir")
   target="$PI_DIR/skills/$skill_name"
-  if [ -e "$target" ] || [ -L "$target" ]; then
+  if [ -L "$target" ] && [ ! -e "$target" ]; then
+    # Dangling symlink — overwrite
+    ln -sfn "${skill_dir%/}" "$target"
+    echo "  Fixed dangling: $skill_name"
+  elif [ -e "$target" ]; then
     echo "  Skipped (already exists): $skill_name"
   else
     ln -sfn "${skill_dir%/}" "$target"
@@ -353,14 +357,21 @@ for skill_dir in $DOTFILES_PATH/claude_configuration/skills/*/; do
   fi
 done
 
-# Symlink prompts from dotfiles as Pi prompt templates
+# Symlink CLAUDE.md as AGENTS.md for Pi
+echo "Linking Pi AGENTS.md..."
+ln -sf "$DOTFILES_PATH/ai/CLAUDE.md" "$PI_DIR/AGENTS.md"
+
 echo "Linking Pi prompts..."
 mkdir -p "$PI_DIR/prompts"
-for prompt_file in $DOTFILES_PATH/claude_configuration/prompts/*.md; do
+for prompt_file in $DOTFILES_PATH/ai/prompts/*.md; do
   [ -f "$prompt_file" ] || continue
   prompt_name=$(basename "$prompt_file")
   target="$PI_DIR/prompts/$prompt_name"
-  if [ -e "$target" ] || [ -L "$target" ]; then
+  if [ -L "$target" ] && [ ! -e "$target" ]; then
+    # Dangling symlink — overwrite
+    ln -sf "$prompt_file" "$target"
+    echo "  Fixed dangling: $prompt_name"
+  elif [ -e "$target" ]; then
     echo "  Skipped (already exists): $prompt_name"
   else
     ln -sf "$prompt_file" "$target"

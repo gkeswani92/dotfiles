@@ -152,5 +152,7 @@
   "gitlens.ai.model": "gitkraken",
   "gitlens.ai.gitkraken.model": "gemini:gemini-2.0-flash",
   "workbench.editor.wrapTabs": true,
-  "workbench.activityBar.orientation": "vertical"
+  "workbench.activityBar.orientation": "vertical",
+  "claudeCode.preferredLocation": "panel",
+  "editor.minimap.enabled": false
 }

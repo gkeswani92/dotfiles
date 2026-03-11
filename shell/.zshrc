@@ -182,7 +182,7 @@ compdef _gt_yargs_completions gt
 # Link dotfiles Claude commands to global ~/.claude/commands directory
 link_global_claude_commands() {
   mkdir -p ~/.claude/commands
-  for cmd in $DOTFILES_PATH/claude_configuration/commands/*.md; do
+  for cmd in $DOTFILES_PATH/ai/commands/*.md; do
     [ -f "$cmd" ] && ln -sf "$cmd" ~/.claude/commands/
   done
 }
@@ -190,8 +190,8 @@ link_global_claude_commands() {
 # Link global CLAUDE.md configuration file
 link_global_claude_config() {
   mkdir -p ~/.config/claude
-  if [ -f "$DOTFILES_PATH/claude_configuration/CLAUDE.md" ]; then
-    ln -sf "$DOTFILES_PATH/claude_configuration/CLAUDE.md" ~/.config/claude/CLAUDE.md
+  if [ -f "$DOTFILES_PATH/ai/CLAUDE.md" ]; then
+    ln -sf "$DOTFILES_PATH/ai/CLAUDE.md" ~/.config/claude/CLAUDE.md
   fi
 }
 
@@ -202,3 +202,10 @@ link_global_claude_config
 
 # Added by tec agent
 [[ -x /Users/gaurav/.local/state/tec/profiles/base/current/global/init ]] && eval "$(/Users/gaurav/.local/state/tec/profiles/base/current/global/init zsh)"
+
+# bun completions
+[ -s "/Users/gaurav/.bun/_bun" ] && source "/Users/gaurav/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

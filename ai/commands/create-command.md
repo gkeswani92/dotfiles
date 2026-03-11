@@ -14,7 +14,7 @@ You are helping create a new Claude Code slash command.
    - Any important notes or constraints
    - Examples if helpful
 
-3. **Create the command file** at `/Users/gaurav/dotfiles/claude_configuration/commands/{command-name}.md`
+3. **Create the command file** at `/Users/gaurav/dotfiles/ai/commands/{command-name}.md`
    - Use markdown format
    - Be clear and specific in instructions
    - Include any necessary context
