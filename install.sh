@@ -290,17 +290,6 @@ print_section "Configuring enhanced shell history"
 echo "Setting up improved history search and deduplication"
 mkdir -p $DOTFILES_PATH/terminal/history
 
-# Step 12: Install developer tools (optional)
-print_section "Installing additional developer tools"
-echo "Checking for GitHub CLI to install GitHub Copilot..."
-if command -v gh >/dev/null 2>&1; then
-  echo "Installing GitHub Copilot CLI extension"
-  gh extension install github/gh-copilot
-else
-  echo "GitHub CLI (gh) not found - skipping Copilot installation"
-  echo "To install GitHub CLI later, visit: https://cli.github.com/"
-fi
-
 # Step 13: Set up Claude Code configuration
 print_section "Setting up Claude Code"
 echo "Configuring Claude Code skills and hooks"
@@ -335,6 +324,36 @@ ln -sf $DOTFILES_PATH/claude_configuration/statusline.sh $HOME/.claude/statuslin
 echo "  Linked statusline.sh"
 
 echo "Claude Code configuration complete!"
+
+# Step 13b: Set up Pi Coding Agent configuration
+# PI_CODING_AGENT_DIR is set by Shopify's devx (via shadowenv) to ~/.pi/agent-shopify
+# Since shadowenv may not be active during install, detect it from the directory
+if [ -n "$PI_CODING_AGENT_DIR" ]; then
+  PI_DIR="$PI_CODING_AGENT_DIR"
+elif [ -d "$HOME/.pi/agent-shopify" ]; then
+  PI_DIR="$HOME/.pi/agent-shopify"
+else
+  PI_DIR="$HOME/.pi/agent"
+fi
+print_section "Setting up Pi Coding Agent"
+echo "Configuring Pi skills (target: $PI_DIR)"
+
+mkdir -p "$PI_DIR/skills"
+
+# Symlink skills from dotfiles, skip any that already exist (e.g. from shop-pi-fy package)
+echo "Linking Pi skills..."
+for skill_dir in $DOTFILES_PATH/claude_configuration/skills/*/; do
+  skill_name=$(basename "$skill_dir")
+  target="$PI_DIR/skills/$skill_name"
+  if [ -e "$target" ] || [ -L "$target" ]; then
+    echo "  Skipped (already exists): $skill_name"
+  else
+    ln -sfn "${skill_dir%/}" "$target"
+    echo "  Linked skill: $skill_name"
+  fi
+done
+
+echo "Pi Coding Agent configuration complete!"
 
 # Step 14: Set up Quick Demo CLI
 print_section "Setting up Quick Demo CLI"
