@@ -142,3 +142,6 @@ fi
 
 # Dotfiles doctor - environment health check
 alias dotfiles-doctor="$DOTFILES_PATH/doctor.sh"
+
+# Run pair-review
+alias pair-review='npx @in-the-loop-labs/pair-review'
