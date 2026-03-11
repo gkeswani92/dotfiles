@@ -1,5 +1,5 @@
 ---
-name: deploy-orgs
+name: deploy-organizations
 description: Deploy Business Platform (organizations) via Conveyor
 ---
 
