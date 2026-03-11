@@ -353,6 +353,21 @@ for skill_dir in $DOTFILES_PATH/claude_configuration/skills/*/; do
   fi
 done
 
+# Symlink prompts from dotfiles as Pi prompt templates
+echo "Linking Pi prompts..."
+mkdir -p "$PI_DIR/prompts"
+for prompt_file in $DOTFILES_PATH/claude_configuration/prompts/*.md; do
+  [ -f "$prompt_file" ] || continue
+  prompt_name=$(basename "$prompt_file")
+  target="$PI_DIR/prompts/$prompt_name"
+  if [ -e "$target" ] || [ -L "$target" ]; then
+    echo "  Skipped (already exists): $prompt_name"
+  else
+    ln -sf "$prompt_file" "$target"
+    echo "  Linked prompt: $prompt_name"
+  fi
+done
+
 echo "Pi Coding Agent configuration complete!"
 
 # Step 14: Set up Quick Demo CLI
