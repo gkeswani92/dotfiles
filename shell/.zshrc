@@ -9,14 +9,14 @@ if [[ -f "$DOTFILES_PATH/scripts/profile.sh" ]]; then
 fi
 export LANG='en_US.UTF-8'
 
-# [Shopify] If you come from bash you might have to change your $PATH.
-if ! [ $SPIN ]; then
+# Generic local PATH setup; Spin-specific paths are work-only.
+if [[ "$DOTFILES_MACHINE_PROFILE" != work || -z "$SPIN" ]]; then
   export PATH=$HOME/bin:/usr/local/bin:$PATH
   export PATH=/usr/local/share/chruby:$PATH
 fi
 
 # Path to your oh-my-zsh installation.
-if [ $SPIN ]; then
+if [[ "$DOTFILES_MACHINE_PROFILE" == work && -n "$SPIN" ]]; then
   export ZSH="/home/spin/.oh-my-zsh"
 else
   export ZSH="$HOME/.oh-my-zsh"
@@ -130,12 +130,6 @@ fi
 if command -v thefuck &> /dev/null; then
   eval "$(thefuck --alias)"
   eval "$(thefuck --alias fk)"
-fi
-
-# Local development environment aliases
-if [[ "$DOTFILES_MACHINE_PROFILE" == work ]]; then
-  alias bp-full-local-dev="zellij --layout ~/.config/zellij/bp-full.kdl"
-  alias bp-orgs-only-dev="zellij --layout ~/.config/zellij/bp-orgs-only.kdl"
 fi
 
 # Initialize Starship prompt

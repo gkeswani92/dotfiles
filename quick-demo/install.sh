@@ -2,6 +2,12 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/../scripts/profile.sh"
+profile=$(dotfiles_read_profile)
+if [ "$profile" != work ]; then
+  echo 'Quick Demo is work-only; no changes made.'
+  exit 0
+fi
 
 # Load nvm if available (needed for npm/quick in non-interactive shells)
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
