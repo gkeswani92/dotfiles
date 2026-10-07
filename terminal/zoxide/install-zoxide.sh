@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # Script to install and configure zoxide
 # https://github.com/ajeetdsouza/zoxide
 #
@@ -8,7 +9,9 @@
 echo "✅ Installing zoxide - a smarter cd command"
 
 # Install zoxide
-if [[ "$OSTYPE" == "darwin"* ]]; then
+if command -v zoxide >/dev/null 2>&1; then
+  echo 'Zoxide is already installed, skipping...'
+elif [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS installation
   if command -v brew >/dev/null 2>&1; then
     echo "Installing zoxide via Homebrew..."
@@ -37,25 +40,7 @@ else
   fi
 fi
 
-# Add default configuration
-cat > "$(dirname "$0")/config.zsh" << 'EOL'
-# Zoxide Configuration
-# https://github.com/ajeetdsouza/zoxide
-
-# Initialize zoxide with zsh
-if command -v zoxide >/dev/null 2>&1; then
-  # Initialize with standard settings
-  eval "$(zoxide init zsh)"
-
-  # Custom aliases for zoxide
-  alias cd="z"         # Replace standard cd with zoxide
-  alias zz="z -"       # Go back to the previous directory
-  alias zi="z -i"      # Interactive selection using fzf
-  alias zl="z -l"      # List all directories in the database with their scores
-  alias zc="z -c"      # Restricts matches to subdirectories of the current directory
-  alias zf="zi"        # Fuzzy finder alias for interactive selection
-fi
-EOL
+# config.zsh is already tracked; installation must not regenerate repository files.
 
 echo "✅ Zoxide installation complete!"
-echo "The configuration has been added to: $(dirname "$0")/config.zsh"
+echo "Shared configuration (not regenerated): $(dirname "$0")/config.zsh"

@@ -79,10 +79,10 @@ echo ""
 
 # --- Oh-My-Zsh & Plugins ---
 echo "Oh-My-Zsh:"
-if [ -d "$HOME/.oh-my-zsh" ]; then
+if [ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]; then
   pass "Oh-My-Zsh installed"
 else
-  fail "Oh-My-Zsh not found"
+  fail "Oh-My-Zsh framework missing (a custom/plugins directory alone is not an installation)"
 fi
 
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"

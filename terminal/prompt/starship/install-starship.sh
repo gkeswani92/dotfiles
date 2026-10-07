@@ -1,11 +1,14 @@
 #!/bin/bash
+set -e
 
 # Script to install and configure Starship prompt
 # https://starship.rs/
 
 echo "✅ Installing Starship prompt"
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
+if command -v starship >/dev/null 2>&1; then
+  echo 'Starship is already installed, skipping...'
+elif [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS installation using Homebrew
   if command -v brew >/dev/null 2>&1; then
     echo "Installing Starship via Homebrew..."

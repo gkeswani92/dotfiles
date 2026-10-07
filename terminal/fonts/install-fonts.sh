@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Script to install programming fonts with ligatures
 # This will install popular coding fonts with ligature support
