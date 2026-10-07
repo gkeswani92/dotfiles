@@ -8,6 +8,7 @@ if [[ -f "$DOTFILES_PATH/scripts/profile.sh" ]]; then
   fi
 fi
 export LANG='en_US.UTF-8'
+export GPG_TTY=$(tty)
 
 # Generic local PATH setup; Spin-specific paths are work-only.
 if [[ "$DOTFILES_MACHINE_PROFILE" != work || -z "$SPIN" ]]; then
