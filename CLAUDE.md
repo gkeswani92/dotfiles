@@ -4,8 +4,11 @@
 This repository contains dotfiles and configuration for various development tools including shell, git, vim, and tmux.
 
 ## Commands
-- Install: `curl https://raw.githubusercontent.com/gkeswani92/dotfiles/main/install.sh | sh`
-- No specific build/lint/test commands as this is a dotfiles repo
+- Install from a local checkout: `./install.sh`
+- Preview AI setup: `./install.sh --ai-only --dry-run`
+- Test AI setup offline: `python3 -m unittest discover -s tests -v`
+- AI resources are scoped under `ai/shared`, `ai/personal`, and `ai/work`; see `ai/README.md`.
+- Machine identity is local data in `~/.config/dotfiles/profile`, never a Git-tracked setting.
 
 ## Code Style Guidelines
 - Shell scripts: Use shebang (`#!/bin/bash`), comments for complex logic

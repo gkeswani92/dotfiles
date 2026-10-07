@@ -44,7 +44,7 @@ A modern, organized collection of configuration files and scripts to set up a de
 ### One-line Install
 
 ```bash
-curl https://raw.githubusercontent.com/gkeswani92/dotfiles/main/install.sh | sh
+git clone https://github.com/gkeswani92/dotfiles.git ~/dotfiles && ~/dotfiles/install.sh
 ```
 
 ### Manual Installation
@@ -65,10 +65,26 @@ curl https://raw.githubusercontent.com/gkeswani92/dotfiles/main/install.sh | sh
    source ~/.zshrc
    ```
 
+### Personal and Work AI Setup
+
+The first installer run asks whether this is a personal or work machine and saves the choice in `~/.config/dotfiles/profile` (outside Git). Subsequent runs reuse it. Plain `pi` automatically launches the selected setup.
+
+```bash
+./install.sh --ai-only --dry-run       # Preview AI setup without changes
+./install.sh --ai-only                 # Install AI resources only
+./install.sh --ai-only --replace-conflicts  # Explicitly back up conflicting copies
+./install.sh --ai-only --reconfigure-profile # Ask again before changing roles
+```
+
+Personal Pi has only the shared Mermaid and Git Context skills. Shopify packages, work skills, prompts, instructions, and agents are installed only in work mode. See [AI setup and migration](ai/README.md) for backups, local settings, and work package bootstrapping.
+
 ## ⚙️ Configuration Structure
 
 ```
 dotfiles/
+├── ai/                   # Machine-scoped AI resources (shared/personal/work)
+├── scripts/              # Profile selection and safe AI installer
+├── tests/                # Offline setup regression tests
 ├── git/                  # Git configuration and scripts
 │   ├── .gitconfig        # Global Git configuration
 │   ├── plugins/          # Git plugins (delta, interactive rebase)
@@ -151,6 +167,14 @@ cd ~/dotfiles
 git pull
 ./install.sh
 ```
+
+### Test AI Setup
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+Tests use temporary home directories and do not install packages or contact AI providers.
 
 ## 🛠️ Customization
 
