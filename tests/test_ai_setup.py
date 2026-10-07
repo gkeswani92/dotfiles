@@ -86,9 +86,15 @@ class AISetupTests(unittest.TestCase):
         self.run_setup()
         pi = self.home / ".pi/agent"
         self.assertEqual(sorted(p.name for p in (pi / "skills").iterdir()), ["git-context", "mermaid"])
-        for name in ("AGENTS.md", "agents", "prompts", "extensions", "models.json", "git"):
+        for name in ("AGENTS.md", "agents", "prompts", "extensions", "git"):
             self.assertFalse((pi / name).exists(), name)
         self.assertFalse((self.home / ".claude").exists())
+        settings = json.loads((pi / "settings.json").read_text())
+        self.assertEqual(settings["defaultProvider"], "openai-codex")
+        self.assertEqual(settings["defaultModel"], "gpt-6.1-sol")
+        self.assertFalse((pi / "models.json").is_symlink())
+        models = json.loads((pi / "models.json").read_text())
+        self.assertEqual(models["providers"]["openai-codex"]["modelOverrides"]["gpt-6.1-sol"]["contextWindow"], 1050000)
         self.assertEqual((self.home / ".config/dotfiles/profile").read_text(), "personal\n")
         self.run_setup("personal", "--verify")
 
@@ -103,6 +109,9 @@ class AISetupTests(unittest.TestCase):
         self.assertEqual((pi / "skills/mermaid").resolve(), REPO / "ai/shared/skills/mermaid")
         settings = json.loads((pi / "settings.json").read_text())
         self.assertIn("shop-pi-fy", settings["packages"][0]["source"])
+        self.assertEqual(settings["defaultProvider"], "anthropic")
+        self.assertEqual(settings["defaultModel"], "claude-opus-5-5")
+        self.assertEqual(json.loads((pi / "models.json").read_text())["providers"]["anthropic"]["modelOverrides"]["claude-opus-5-5"]["contextWindow"], 1000000)
         self.assertFalse((pi / "settings.json").is_symlink())
         self.assertFalse((pi / "models.json").is_symlink())
         self.assertEqual(json.loads((pi / "models.json").read_text())["providers"]["openai"]["modelOverrides"]["gpt-6.1-sol"]["contextWindow"], 1000000)
@@ -136,6 +145,25 @@ class AISetupTests(unittest.TestCase):
         self.assertEqual(json.loads(path.read_text()), settings)
         self.assertEqual(auth.read_text(), "PRIVATE AUTH SENTINEL")
         self.assertEqual(session.read_text(), "PRIVATE SESSION SENTINEL")
+
+    def test_model_overrides_preserve_unrelated_fields(self):
+        path = self.write_json(".pi/agent/models.json", {
+            "providers": {
+                "openai-codex": {
+                    "modelOverrides": {
+                        "gpt-6.1-sol": {"contextWindow": 272000, "maxTokens": 64000},
+                        "gpt-5.5": {"contextWindow": 500000},
+                    }
+                },
+                "local": {"baseUrl": "http://localhost:1234"},
+            }
+        })
+        self.run_setup()
+        models = json.loads(path.read_text())
+        overrides = models["providers"]["openai-codex"]["modelOverrides"]
+        self.assertEqual(overrides["gpt-6.1-sol"], {"contextWindow": 1050000, "maxTokens": 64000})
+        self.assertEqual(overrides["gpt-5.5"]["contextWindow"], 500000)
+        self.assertEqual(models["providers"]["local"]["baseUrl"], "http://localhost:1234")
 
     def test_conflict_requires_explicit_backup(self):
         original = self.write(".pi/agent/skills/mermaid/SKILL.md", "custom original")
@@ -264,6 +292,11 @@ class AISetupTests(unittest.TestCase):
             self.assertEqual(result.stdout.strip(), f"{self.home}/.pi/{directory}|unset|argument with spaces --offline")
             child = subprocess.run([str(self.home / ".local/bin/pi"), "nested"], env=self.env, capture_output=True, text=True)
             self.assertEqual(child.stdout.strip(), f"{self.home}/.pi/{directory}|unset|child")
+
+    def test_verify_rejects_missing_model_override(self):
+        self.run_setup()
+        self.write_json(".pi/agent/models.json", {})
+        self.run_setup("personal", "--verify", ok=False)
 
     def test_verify_rejects_work_leak(self):
         self.run_setup()

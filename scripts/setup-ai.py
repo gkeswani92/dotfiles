@@ -100,12 +100,15 @@ def main():
 
     models_path = pi / "models.json"
     models = None
-    if args.profile == "work":
+    model_defaults = repo / f"ai/{args.profile}/pi/models.json"
+    if model_defaults.exists():
         models = read_json(models_path, {})
-        desired = read_json(work / "pi/models.json", {})
+        desired = read_json(model_defaults, {})
         for provider, config in desired.get("providers", {}).items():
             dest = models.setdefault("providers", {}).setdefault(provider, {})
-            dest.setdefault("modelOverrides", {}).update(config.get("modelOverrides", {}))
+            overrides = dest.setdefault("modelOverrides", {})
+            for model_id, override in config.get("modelOverrides", {}).items():
+                overrides.setdefault(model_id, {}).update(override)
 
     manifest_path = state / f"ai-links-{args.profile}.json"
     previous = read_json(manifest_path, {})
@@ -149,6 +152,15 @@ def main():
                 failures.append("Work resources still referenced by personal settings")
         elif any(p not in actual.get("packages", []) for p in defaults.get("packages", [])):
             failures.append("Work package configuration is missing or outdated")
+        if models is not None:
+            actual_models = read_json(models_path, {})
+            if models_path.is_symlink() or not models_path.exists():
+                failures.append("Pi model overrides must be a local file")
+            for provider, config in desired.get("providers", {}).items():
+                installed = actual_models.get("providers", {}).get(provider, {}).get("modelOverrides", {})
+                for model_id, override in config.get("modelOverrides", {}).items():
+                    if any(installed.get(model_id, {}).get(k) != v for k, v in override.items()):
+                        failures.append(f"Missing or incorrect model override: {provider}/{model_id}")
         if failures:
             raise RuntimeError("\\n".join(failures))
         print(f"Verified {args.profile} AI resources in {pi}")

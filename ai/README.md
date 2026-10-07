@@ -25,8 +25,8 @@ The role is stored outside Git in `~/.config/dotfiles/profile`. Future installer
 
 | Role | Active Pi directory | Installed Pi resources |
 |------|---------------------|------------------------|
-| personal | `~/.pi/agent` | shared + personal |
-| work | `~/.pi/agent-shopify` | shared + work, with Pi-specific overrides |
+| personal | `~/.pi/agent` | shared + personal; default `openai-codex/gpt-6.1-sol`, 1,050,000-token context |
+| work | `~/.pi/agent-shopify` | shared + work; default `anthropic/claude-opus-5-5`, 1,000,000-token context |
 
 Plain `pi` uses `~/.local/bin/pi`, which pins the role's directory, discards an inherited session-directory override, and delegates to the actual Pi CLI on PATH. Child Pi processes also see the launcher on PATH. The launcher fails if the saved role is missing/invalid; it does not guess from an inherited environment variable or an existing directory.
 
@@ -51,9 +51,15 @@ Independent files/directories or unrelated links at a desired destination cause 
 
 Backups are stored under `~/.dotfiles-backup/ai-*/` using original home-relative paths. Existing independent personal Mermaid/Git Context copies are backed up during this migration. Backed-up symlinks remain symlinks, not frozen snapshots of their contents.
 
-Live Pi `settings.json` and `models.json` are local files, never repository symlinks. Settings defaults seed missing preferences only. On work reruns, the installer refreshes its shop-pi-fy package entry and its explicit model overrides; unrelated settings/models are retained. Personal reruns remove recognized work package/resource references, but preserve unrelated user packages and resources. `auth.json`, sessions, trust decisions, caches, and memory are never installed or edited.
+Live Pi `settings.json` and `models.json` are local files, never repository symlinks. Settings defaults seed missing preferences only. On work reruns, the installer refreshes its shop-pi-fy package entry. Both roles apply their explicit model overrides; unrelated settings/models are retained. Personal reruns remove recognized work package/resource references, but preserve unrelated user packages and resources. `auth.json`, sessions, trust decisions, caches, and memory are never installed or edited.
 
 If the work machine previously stored work authentication/history in `~/.pi/agent` instead of `~/.pi/agent-shopify`, review that migration separately before installing. The installer will not infer whether credentials belong to work or copy them automatically.
+
+## Model defaults and context limits
+
+Personal uses the existing ChatGPT/Codex connection (`openai-codex`), not an API-key-only provider. Its Sol 6.1 context override opts into the 1,050,000-token window advertised on [OpenAI's model page](https://developers.openai.com/api/docs/models/gpt-6.1-sol), instead of Pi's conservative 272K default. Work uses Opus 5.5's catalogued 1,000,000-token window. Overrides do not unlock provider entitlements; upstream request limits and pricing still apply. Large OpenAI contexts enter the more expensive long-context tier.
+
+Defaults seed new profiles; existing local model preferences are intentionally preserved. To change an existing profile's startup model, select it in `/model` and press Ctrl+S, or explicitly edit its local `settings.json`. Resuming an old session can restore the old model; use `/new` to test startup defaults.
 
 ## Work package bootstrap
 
