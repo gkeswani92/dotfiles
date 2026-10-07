@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+DOTFILES_PATH="${DOTFILES_PATH:-$HOME/dotfiles}"
+source "$DOTFILES_PATH/scripts/profile.sh"
+profile=$(dotfiles_read_profile)
+export PI_CODING_AGENT_DIR=$(dotfiles_pi_dir "$profile")
+# Do not inherit a different profile's session destination.
+unset PI_CODING_AGENT_SESSION_DIR
+
+# Find the actual CLI, skipping this launcher even when reached through symlinks.
+IFS=: read -r -a directories <<< "$PATH"
+for directory in "${directories[@]}"; do
+  candidate="${directory:-.}/pi"
+  if [ -f "$candidate" ] && [ -x "$candidate" ] && [ ! "$candidate" -ef "$0" ]; then
+    exec "$candidate" "$@"
+  fi
+done
+echo 'Pi CLI not found on PATH. Install @earendil-works/pi-coding-agent first.' >&2
+exit 127
