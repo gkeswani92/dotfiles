@@ -305,7 +305,10 @@ ln -sf $DOTFILES_PATH/ai/CLAUDE.md $HOME/.claude/CLAUDE.md
 echo "Linking Claude Code skills..."
 for skill_dir in $DOTFILES_PATH/ai/skills/*/; do
   skill_name=$(basename "$skill_dir")
-  # Use ln -sfn: -s (symbolic), -f (force), -n (no-dereference - treat symlink to dir as file)
+  # ln -sfn only replaces symlinks-to-dirs, not real dirs. Remove real dirs first.
+  if [ -d "$HOME/.claude/skills/$skill_name" ] && [ ! -L "$HOME/.claude/skills/$skill_name" ]; then
+    rm -rf "$HOME/.claude/skills/$skill_name"
+  fi
   ln -sfn "${skill_dir%/}" "$HOME/.claude/skills/$skill_name"
   echo "  Linked skill: $skill_name"
 done
@@ -349,6 +352,11 @@ for skill_dir in $DOTFILES_PATH/ai/skills/*/; do
     # Dangling symlink — overwrite
     ln -sfn "${skill_dir%/}" "$target"
     echo "  Fixed dangling: $skill_name"
+  elif [ -d "$target" ] && [ ! -L "$target" ]; then
+    # Real directory (e.g. from shop-pi-fy) — replace with symlink
+    rm -rf "$target"
+    ln -sfn "${skill_dir%/}" "$target"
+    echo "  Replaced real dir: $skill_name"
   elif [ -e "$target" ]; then
     echo "  Skipped (already exists): $skill_name"
   else
