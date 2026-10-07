@@ -311,11 +311,11 @@ mkdir -p $HOME/.claude/skills
 
 # Symlink global CLAUDE.md
 echo "Linking global CLAUDE.md..."
-ln -sf $DOTFILES_PATH/ai/CLAUDE.md $HOME/.claude/CLAUDE.md
+ln -sf $DOTFILES_PATH/ai/work/CLAUDE.md $HOME/.claude/CLAUDE.md
 
 # Symlink all skills from dotfiles
 echo "Linking Claude Code skills..."
-for skill_dir in $DOTFILES_PATH/ai/skills/*/; do
+for skill_dir in "$DOTFILES_PATH/ai/shared/skills/"*/ "$DOTFILES_PATH/ai/work/skills/"*/; do
   skill_name=$(basename "$skill_dir")
   link_with_backup "${skill_dir%/}" "$HOME/.claude/skills/$skill_name"
   echo "  Linked skill: $skill_name"
@@ -323,15 +323,15 @@ done
 
 # Make hook scripts executable
 echo "Setting up Claude Code hooks..."
-if [ -d "$DOTFILES_PATH/ai/hooks" ]; then
-  chmod +x $DOTFILES_PATH/ai/hooks/*.sh 2>/dev/null || true
+if [ -d "$DOTFILES_PATH/ai/work/hooks" ]; then
+  chmod +x $DOTFILES_PATH/ai/work/hooks/*.sh 2>/dev/null || true
   echo "  Made hook scripts executable"
 fi
 
 # Set up status line script
 echo "Linking Claude Code status line..."
-chmod +x $DOTFILES_PATH/ai/statusline.sh
-ln -sf $DOTFILES_PATH/ai/statusline.sh $HOME/.claude/statusline.sh
+chmod +x $DOTFILES_PATH/ai/work/statusline.sh
+ln -sf $DOTFILES_PATH/ai/work/statusline.sh $HOME/.claude/statusline.sh
 echo "  Linked statusline.sh"
 
 echo "Claude Code configuration complete!"
@@ -353,7 +353,7 @@ mkdir -p "$PI_DIR/skills"
 
 # Symlink skills from dotfiles, skip any that already exist (e.g. from shop-pi-fy package)
 echo "Linking Pi skills..."
-for skill_dir in $DOTFILES_PATH/ai/skills/*/; do
+for skill_dir in "$DOTFILES_PATH/ai/shared/skills/"*/ "$DOTFILES_PATH/ai/work/skills/"*/; do
   skill_name=$(basename "$skill_dir")
   target="$PI_DIR/skills/$skill_name"
   if [ -L "$target" ] && [ ! -e "$target" ]; then
@@ -373,7 +373,7 @@ done
 
 # Symlink pi-specific skill overrides (force-replace shared versions)
 echo "Linking Pi-specific skill overrides..."
-for skill_dir in $DOTFILES_PATH/ai/pi-skills/*/; do
+for skill_dir in $DOTFILES_PATH/ai/work/pi/skills/*/; do
   [ -d "$skill_dir" ] || continue
   skill_name=$(basename "$skill_dir")
   link_with_backup "${skill_dir%/}" "$PI_DIR/skills/$skill_name"
@@ -383,7 +383,7 @@ done
 # Symlink agent definitions for Pi subagent tool
 echo "Linking Pi agents..."
 mkdir -p "$PI_DIR/agents"
-for agent_file in $DOTFILES_PATH/ai/agents/*.md; do
+for agent_file in $DOTFILES_PATH/ai/work/pi/agents/*.md; do
   [ -f "$agent_file" ] || continue
   agent_name=$(basename "$agent_file")
   target="$PI_DIR/agents/$agent_name"
@@ -393,11 +393,11 @@ done
 
 # Symlink CLAUDE.md as AGENTS.md for Pi
 echo "Linking Pi AGENTS.md..."
-link_with_backup "$DOTFILES_PATH/ai/CLAUDE.md" "$PI_DIR/AGENTS.md"
+link_with_backup "$DOTFILES_PATH/ai/work/CLAUDE.md" "$PI_DIR/AGENTS.md"
 
 echo "Linking Pi settings..."
 for config_file in settings.json models.json; do
-  link_with_backup "$DOTFILES_PATH/ai/pi/$config_file" "$PI_DIR/$config_file"
+  link_with_backup "$DOTFILES_PATH/ai/work/pi/${config_file/settings.json/settings.defaults.json}" "$PI_DIR/$config_file"
 done
 
 echo "Linking shop-pi-fy extensions and skills..."
@@ -416,7 +416,7 @@ fi
 
 echo "Linking Pi prompts..."
 mkdir -p "$PI_DIR/prompts"
-for prompt_file in $DOTFILES_PATH/ai/prompts/*.md; do
+for prompt_file in $DOTFILES_PATH/ai/work/pi/prompts/*.md; do
   [ -f "$prompt_file" ] || continue
   prompt_name=$(basename "$prompt_file")
   target="$PI_DIR/prompts/$prompt_name"

@@ -114,7 +114,7 @@ else
 fi
 
 skill_count=0
-for skill_dir in "$DOTFILES_PATH/ai/skills"/*/; do
+for skill_dir in "$DOTFILES_PATH/ai/shared/skills/"*/ "$DOTFILES_PATH/ai/work/skills/"*/; do
   skill_name=$(basename "$skill_dir")
   if [ -L "$HOME/.claude/skills/$skill_name" ]; then
     ((skill_count++))

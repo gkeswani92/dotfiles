@@ -29,7 +29,7 @@ This skill is the source of truth for the team's layout, models, context, and ga
 | shell | None | Gaurav's terminal. No agent ever types into, reads, or closes it |
 | status | Script | Live board of agents, candidates, and the ledger. Once the branch is pushed it watches Delta and Gitstream sync; after publication, also the Gitstream or Delta PR's CI, Binks, comments, reviews, and head. Pings the planner on changes |
 
-The model table lives in `team.sh`. Override a role only when Gaurav asks (`--model reviewer=provider/id:thinking` on `up`) and log why in the ledger. If a model is unavailable, check `pi --list-models` and ask before substituting. If GPT-6.1 Sol is too slow or rate-limited for a top-hat, propose the previous tophatter, `--model tophatter=openai-1m/gpt-5.6-sol:xhigh`. Pi lists GPT-6.1 Sol at 272K; the tophatter's 1M window comes from a `modelOverrides` entry in `~/.pi/agent/models.json`, so check `pi --list-models` shows it at 1M before relying on it.
+The model table lives in `team.sh`. Override a role only when Gaurav asks (`--model reviewer=provider/id:thinking` on `up`) and log why in the ledger. If a model is unavailable, check `pi --list-models` and ask before substituting. If GPT-6.1 Sol is too slow or rate-limited for a top-hat, propose the previous tophatter, `--model tophatter=openai-1m/gpt-5.6-sol:xhigh`. Pi lists GPT-6.1 Sol at 272K; the tophatter's 1M window comes from a `modelOverrides` entry in `${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/models.json`, so check `pi --list-models` shows it at 1M before relying on it.
 
 ## Hard gates
 
@@ -81,7 +81,7 @@ The model table lives in `team.sh`. Override a role only when Gaurav asks (`--mo
 Load the `herdr` skill. From the planner pane, which must be the only pane in its tab:
 
 ```bash
-T=~/.pi/agent/skills/herdr-feature-delivery/scripts/team.sh
+T="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/skills/herdr-feature-delivery/scripts/team.sh"
 $T up <slug> --worktree <zone-dir> --title "<feature>" [--pack organizations]
 $T start implementer --team <slug>
 $T start tophatter --team <slug>

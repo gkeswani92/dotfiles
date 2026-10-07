@@ -1,6 +1,6 @@
 # Claude Code Skills
 
-Quick-reference index of all skills in this directory.
+Quick-reference index of work skills and the two shared skills. Mermaid and Git Context now live in `../../shared/skills/`; the installer adds them on both machines. All other entries remain work-only.
 
 ## Dev Workflow
 

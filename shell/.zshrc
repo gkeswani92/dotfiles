@@ -182,7 +182,7 @@ compdef _gt_yargs_completions gt
 # Link dotfiles Claude commands to global ~/.claude/commands directory
 link_global_claude_commands() {
   mkdir -p ~/.claude/commands
-  for cmd in $DOTFILES_PATH/ai/commands/*.md; do
+  for cmd in $DOTFILES_PATH/ai/work/commands/*.md; do
     [ -f "$cmd" ] && ln -sf "$cmd" ~/.claude/commands/
   done
 }
@@ -190,8 +190,8 @@ link_global_claude_commands() {
 # Link global CLAUDE.md configuration file
 link_global_claude_config() {
   mkdir -p ~/.config/claude
-  if [ -f "$DOTFILES_PATH/ai/CLAUDE.md" ]; then
-    ln -sf "$DOTFILES_PATH/ai/CLAUDE.md" ~/.config/claude/CLAUDE.md
+  if [ -f "$DOTFILES_PATH/ai/work/CLAUDE.md" ]; then
+    ln -sf "$DOTFILES_PATH/ai/work/CLAUDE.md" ~/.config/claude/CLAUDE.md
   fi
 }
 
