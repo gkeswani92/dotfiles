@@ -63,6 +63,16 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+## Delegated Review Validation Ownership
+
+When coordinating an implementer and an independent reviewer:
+
+- The implementer and lead own routine validation: tests, typechecks, linters, formatters, package checks, builds, generators, and service setup.
+- The reviewer evaluates the artifact, test discrimination, and supplied validation evidence; it must not routinely rerun those checks for confidence.
+- A reviewer may run one narrow, cheap probe only for a concrete suspected defect that cannot be resolved by reading code or existing evidence, and must explain why it was necessary.
+- Missing duplicated reviewer validation is never a finding.
+- The lead runs or coordinates the final required validation against the exact candidate before publication or team cleanup.
+
 ## Organizations Codebase Conventions
 
 - **StatsD**: Always use `BusinessPlatformStatsD.track(` instead of `StatsD.increment` — it adds data tag cleaning.
