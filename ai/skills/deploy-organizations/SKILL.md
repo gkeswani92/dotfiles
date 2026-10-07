@@ -105,7 +105,7 @@ Report the current state to the user before proceeding.
 
 ## Step 4: Determine batch size and dry run
 
-**Create the team and launch the monitoring teammate**: Use `TeamCreate` with `team_name: "bp-deploy"`, then spawn a teammate using the `Agent` tool with `subagent_type: "general-purpose"`, `name: "monitor"`, `team_name: "bp-deploy"` with these instructions:
+**Create the team and launch the monitoring teammate**: Use `TeamCreate` with `team_name: "bp-deploy"`, then spawn a teammate using the `Agent` tool with `subagent_type: "general-purpose"`, `name: "monitor"`, `team_name: "bp-deploy"`, `model: "sonnet"` with these instructions:
 
 > You are monitoring the Business Platform deploy. Read `references/monitoring.md` — it contains the exact Observe MCP queries and monitoring protocol.
 >
@@ -118,7 +118,7 @@ Report the current state to the user before proceeding.
 >
 > If any Observe MCP call fails, retry once, then report the error to the lead. Do not assume tools are unavailable without retrying.
 
-**Also launch the Slack monitoring teammate**: Spawn using `Agent` with `subagent_type: "general-purpose"`, `name: "slack-monitor"`, `team_name: "bp-deploy"` with these instructions:
+**Also launch the Slack monitoring teammate**: Spawn using `Agent` with `subagent_type: "general-purpose"`, `name: "slack-monitor"`, `team_name: "bp-deploy"`, `model: "sonnet"` with these instructions:
 
 > You are monitoring Slack channels for new errors during a Business Platform deploy. You have access to both the Slack MCP tools and the Observe MCP tools.
 >
@@ -264,7 +264,7 @@ If `npx` fails with an **E401 (unauthorized)** error, run `dev rotate-cloudsmith
 
 Use `AskUserQuestion`: "Ready to publish?" Options: "Publish", "Wait".
 
-If confirmed, spawn the publish teammate using the `Agent` tool with `subagent_type: "general-purpose"`, `name: "publisher"`, `team_name: "bp-deploy"` with these instructions:
+If confirmed, spawn the publish teammate using the `Agent` tool with `subagent_type: "general-purpose"`, `name: "publisher"`, `team_name: "bp-deploy"`, `model: "sonnet"` with these instructions:
 
 > You are publishing the Business Platform release. Run this command:
 >
