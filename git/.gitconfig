@@ -101,23 +101,7 @@
 # Dev related config
 [include]
 	path = /Users/gaurav/.config/dev/gitconfig
-	path = /Users/gaurav/.config/dev/gitconfig
-	path = /Users/gaurav/.config/dev/gitconfig
-	path = /Users/gaurav/.config/dev/gitconfig
-	path = /Users/gaurav/.config/dev/gitconfig
-	path = /Users/gaurav/.config/dev/gitconfig
-	path = /Users/gaurav/.config/dev/gitconfig
-	path = /Users/gaurav/.config/dev/gitconfig
-	path = /Users/gaurav/.config/dev/gitconfig
-	path = /Users/gaurav/.config/dev/gitconfig
-	path = /Users/gaurav/.config/dev/gitconfig
-	path = /Users/gaurav/.config/dev/gitconfig
 [maintenance]
-	repo = /Users/gaurav/world/trees/primary-legal-entity-weirdness/src
-	repo = /Users/gaurav/world/trees/business-platform-internal-refresh/src
-	repo = /Users/gaurav/world/trees/organizations-deployment/src
-	repo = /Users/gaurav/world/trees/root/src
-	repo = /Users/gaurav/world/trees/services-internal-api-parity/src
 	repo = /Users/gaurav/world/git
 [filter "lfs"]
 	clean = git-lfs clean -- %f
