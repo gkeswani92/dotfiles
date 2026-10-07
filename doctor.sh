@@ -105,25 +105,17 @@ else
 fi
 echo ""
 
-# --- Claude Code ---
-echo "Claude Code:"
-if [ -L "$HOME/.claude/CLAUDE.md" ]; then
-  pass "Global CLAUDE.md linked"
-else
-  warn "Global CLAUDE.md not linked"
-fi
-
-skill_count=0
-for skill_dir in "$DOTFILES_PATH/ai/shared/skills/"*/ "$DOTFILES_PATH/ai/work/skills/"*/; do
-  skill_name=$(basename "$skill_dir")
-  if [ -L "$HOME/.claude/skills/$skill_name" ]; then
-    ((skill_count++))
+# --- Machine-scoped AI resources ---
+echo "AI resources:"
+source "$DOTFILES_PATH/scripts/profile.sh"
+if profile=$(dotfiles_read_profile); then
+  if python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$profile" --verify; then
+    pass "$profile AI resources installed (unselected work resources are not required)"
   else
-    warn "Skill not linked: $skill_name"
+    fail "$profile AI setup needs attention; run ./install.sh --ai-only --dry-run"
   fi
-done
-if [ "$skill_count" -gt 0 ]; then
-  pass "$skill_count skills linked"
+else
+  fail "Machine profile missing or invalid; run ./install.sh --ai-only"
 fi
 echo ""
 

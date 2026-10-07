@@ -1,4 +1,12 @@
 export DOTFILES_PATH=$HOME/dotfiles
+# Machine identity is local data, not a Git-tracked setting or an inherited guess.
+DOTFILES_MACHINE_PROFILE=''
+if [[ -f "$DOTFILES_PATH/scripts/profile.sh" ]]; then
+  source "$DOTFILES_PATH/scripts/profile.sh"
+  if [[ -f "$HOME/.config/dotfiles/profile" ]]; then
+    DOTFILES_MACHINE_PROFILE=$(dotfiles_read_profile) || DOTFILES_MACHINE_PROFILE=''
+  fi
+fi
 export LANG='en_US.UTF-8'
 
 # [Shopify] If you come from bash you might have to change your $PATH.
@@ -40,7 +48,7 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 # [Shopify] Load dev but only if present and the shell is interactive
-if [[ -f /opt/dev/dev.sh ]] && [[ $- == *i* ]]; then
+if [[ "$DOTFILES_MACHINE_PROFILE" == work ]] && [[ -f /opt/dev/dev.sh ]] && [[ $- == *i* ]]; then
   source /opt/dev/dev.sh
 fi
 
@@ -125,8 +133,10 @@ if command -v thefuck &> /dev/null; then
 fi
 
 # Local development environment aliases
-alias bp-full-local-dev="zellij --layout  ~/.config/zellij/bp-full.kdl"
-alias bp-orgs-only-dev="zellij --layout ~/.config/zellij/bp-orgs-only.kdl"
+if [[ "$DOTFILES_MACHINE_PROFILE" == work ]]; then
+  alias bp-full-local-dev="zellij --layout ~/.config/zellij/bp-full.kdl"
+  alias bp-orgs-only-dev="zellij --layout ~/.config/zellij/bp-orgs-only.kdl"
+fi
 
 # Initialize Starship prompt
 eval "$(starship init zsh)"
@@ -140,7 +150,7 @@ fi
 # Potentially dev related commands that were added to the dotfiles
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
-[[ -f /opt/dev/sh/chruby/chruby.sh ]] && { type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; } }
+[[ "$DOTFILES_MACHINE_PROFILE" == work ]] && [[ -f /opt/dev/sh/chruby/chruby.sh ]] && { type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; } }
 [[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
 
 # Lazy-load NVM (speeds up shell startup by ~200-400ms)
@@ -179,29 +189,11 @@ _gt_yargs_completions()
 compdef _gt_yargs_completions gt
 ###-end-gt-completions-###
 
-# Link dotfiles Claude commands to global ~/.claude/commands directory
-link_global_claude_commands() {
-  mkdir -p ~/.claude/commands
-  for cmd in $DOTFILES_PATH/ai/work/commands/*.md; do
-    [ -f "$cmd" ] && ln -sf "$cmd" ~/.claude/commands/
-  done
-}
-
-# Link global CLAUDE.md configuration file
-link_global_claude_config() {
-  mkdir -p ~/.config/claude
-  if [ -f "$DOTFILES_PATH/ai/work/CLAUDE.md" ]; then
-    ln -sf "$DOTFILES_PATH/ai/work/CLAUDE.md" ~/.config/claude/CLAUDE.md
-  fi
-}
-
-# Run once on shell startup to ensure commands and config are linked
-link_global_claude_commands
-link_global_claude_config
-
-
-# Added by tec agent
-[[ -x /Users/gaurav/.local/state/tec/profiles/base/current/global/init ]] && eval "$(/Users/gaurav/.local/state/tec/profiles/base/current/global/init zsh)"
+# Resource linking belongs to install.sh, never shell startup.
+# Shopify's tec initialization is work-only.
+if [[ "$DOTFILES_MACHINE_PROFILE" == work ]] && [[ -x "$HOME/.local/state/tec/profiles/base/current/global/init" ]]; then
+  eval "$("$HOME/.local/state/tec/profiles/base/current/global/init" zsh)"
+fi
 
 # bun completions
 [ -s "/Users/gaurav/.bun/_bun" ] && source "/Users/gaurav/.bun/_bun"
@@ -209,3 +201,9 @@ link_global_claude_config
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Put the installed profile-aware Pi launcher ahead of the provider CLI.
+# The function also wins over a Pi function/alias installed by work tooling.
+export PATH="$HOME/.local/bin:$PATH"
+unalias pi 2>/dev/null
+function pi() { "$HOME/.local/bin/pi" "$@"; }

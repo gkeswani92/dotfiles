@@ -14,8 +14,39 @@
 # The -e option causes the script to exit immediately if any command fails
 set -e
 
-# Define the path to your dotfiles
+# Define the path to your dotfiles. Install from a local checkout.
 export DOTFILES_PATH=$HOME/dotfiles
+
+ai_only=0
+reconfigure=0
+ai_args=()
+for option in "$@"; do
+  case "$option" in
+    --ai-only) ai_only=1 ;;
+    --dry-run) ai_only=1; ai_args+=(--dry-run) ;;
+    --replace-conflicts) ai_args+=(--replace-conflicts) ;;
+    --reconfigure-profile) reconfigure=1 ;;
+    --help|-h)
+      echo 'Usage: ./install.sh [--ai-only] [--dry-run] [--replace-conflicts] [--reconfigure-profile]'
+      echo 'The machine role is asked once and stored in ~/.config/dotfiles/profile.'
+      exit 0 ;;
+    *) echo "Unknown option: $option" >&2; exit 1 ;;
+  esac
+done
+if [ ! -f "$DOTFILES_PATH/scripts/profile.sh" ]; then
+  echo 'Clone the latest dotfiles into ~/dotfiles, then run ./install.sh from the checkout.' >&2
+  exit 1
+fi
+source "$DOTFILES_PATH/scripts/profile.sh"
+dotfiles_select_profile "$reconfigure"
+echo "Machine profile: $DOTFILES_MACHINE_PROFILE"
+command -v python3 >/dev/null || { echo 'python3 is required for AI setup.' >&2; exit 1; }
+# Check conflicts before the full installer can make unrelated changes.
+python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$DOTFILES_MACHINE_PROFILE" --check "${ai_args[@]}"
+if [ "$ai_only" = 1 ]; then
+  python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$DOTFILES_MACHINE_PROFILE" "${ai_args[@]}"
+  exit 0
+fi
 
 # Print section headers in a consistent, visible format
 print_section() {
@@ -23,18 +54,6 @@ print_section() {
   echo "========================================"
   echo "✅ $1"
   echo "========================================"
-}
-
-DOTFILES_BACKUP="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
-
-link_with_backup() {
-  local source=$1 target=$2
-  if [ -e "$target" ] && [ ! -L "$target" ]; then
-    mkdir -p "$DOTFILES_BACKUP"
-    mv "$target" "$DOTFILES_BACKUP/$(echo "${target#$HOME/}" | tr / _)"
-    echo "  Backed up $target to $DOTFILES_BACKUP"
-  fi
-  ln -sfn "$source" "$target"
 }
 
 # Step 1: Ensure dotfiles are available locally
@@ -239,8 +258,10 @@ ln -sf $DOTFILES_PATH/terminal/atuin/config.toml ~/.config/atuin/config.toml
 # Set up Zellij configuration
 echo "Setting up Zellij configuration..."
 ln -sf $DOTFILES_PATH/terminal/zellij/config.kdl ~/.config/zellij/config.kdl
-ln -sf $DOTFILES_PATH/local-development/zellij/bp-full.kdl ~/.config/zellij/bp-full.kdl
-ln -sf $DOTFILES_PATH/local-development/zellij/bp-orgs-only.kdl ~/.config/zellij/bp-orgs-only.kdl
+if [ "$DOTFILES_MACHINE_PROFILE" = work ]; then
+  ln -sf $DOTFILES_PATH/local-development/zellij/bp-full.kdl ~/.config/zellij/bp-full.kdl
+  ln -sf $DOTFILES_PATH/local-development/zellij/bp-orgs-only.kdl ~/.config/zellij/bp-orgs-only.kdl
+fi
 
 # Link layout files
 for layout in $DOTFILES_PATH/terminal/zellij/layouts/*.kdl; do
@@ -302,143 +323,16 @@ print_section "Configuring enhanced shell history"
 echo "Setting up improved history search and deduplication"
 mkdir -p $DOTFILES_PATH/terminal/history
 
-# Step 13: Set up Claude Code configuration
-print_section "Setting up Claude Code"
-echo "Configuring Claude Code skills and hooks"
+# Step 13: Install only the selected machine's AI resources.
+print_section "Setting up AI resources ($DOTFILES_MACHINE_PROFILE)"
+python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$DOTFILES_MACHINE_PROFILE" "${ai_args[@]}"
 
-# Create Claude Code directories
-mkdir -p $HOME/.claude/skills
-
-# Symlink global CLAUDE.md
-echo "Linking global CLAUDE.md..."
-ln -sf $DOTFILES_PATH/ai/work/CLAUDE.md $HOME/.claude/CLAUDE.md
-
-# Symlink all skills from dotfiles
-echo "Linking Claude Code skills..."
-for skill_dir in "$DOTFILES_PATH/ai/shared/skills/"*/ "$DOTFILES_PATH/ai/work/skills/"*/; do
-  skill_name=$(basename "$skill_dir")
-  link_with_backup "${skill_dir%/}" "$HOME/.claude/skills/$skill_name"
-  echo "  Linked skill: $skill_name"
-done
-
-# Make hook scripts executable
-echo "Setting up Claude Code hooks..."
-if [ -d "$DOTFILES_PATH/ai/work/hooks" ]; then
-  chmod +x $DOTFILES_PATH/ai/work/hooks/*.sh 2>/dev/null || true
-  echo "  Made hook scripts executable"
+# Step 14: Shopify's demo publisher belongs only on work machines.
+if [ "$DOTFILES_MACHINE_PROFILE" = work ]; then
+  print_section "Setting up Quick Demo CLI"
+  chmod +x "$DOTFILES_PATH/quick-demo/install.sh"
+  "$DOTFILES_PATH/quick-demo/install.sh"
 fi
-
-# Set up status line script
-echo "Linking Claude Code status line..."
-chmod +x $DOTFILES_PATH/ai/work/statusline.sh
-ln -sf $DOTFILES_PATH/ai/work/statusline.sh $HOME/.claude/statusline.sh
-echo "  Linked statusline.sh"
-
-echo "Claude Code configuration complete!"
-
-# Step 13b: Set up Pi Coding Agent configuration
-# PI_CODING_AGENT_DIR is set by Shopify's devx (via shadowenv) to ~/.pi/agent-shopify
-# Since shadowenv may not be active during install, detect it from the directory
-if [ -n "$PI_CODING_AGENT_DIR" ]; then
-  PI_DIR="$PI_CODING_AGENT_DIR"
-elif [ -d "$HOME/.pi/agent-shopify" ]; then
-  PI_DIR="$HOME/.pi/agent-shopify"
-else
-  PI_DIR="$HOME/.pi/agent"
-fi
-print_section "Setting up Pi Coding Agent"
-echo "Configuring Pi skills (target: $PI_DIR)"
-
-mkdir -p "$PI_DIR/skills"
-
-# Symlink skills from dotfiles, skip any that already exist (e.g. from shop-pi-fy package)
-echo "Linking Pi skills..."
-for skill_dir in "$DOTFILES_PATH/ai/shared/skills/"*/ "$DOTFILES_PATH/ai/work/skills/"*/; do
-  skill_name=$(basename "$skill_dir")
-  target="$PI_DIR/skills/$skill_name"
-  if [ -L "$target" ] && [ ! -e "$target" ]; then
-    # Dangling symlink — overwrite
-    ln -sfn "${skill_dir%/}" "$target"
-    echo "  Fixed dangling: $skill_name"
-  elif [ -d "$target" ] && [ ! -L "$target" ]; then
-    link_with_backup "${skill_dir%/}" "$target"
-    echo "  Replaced real dir: $skill_name"
-  elif [ -e "$target" ]; then
-    echo "  Skipped (already exists): $skill_name"
-  else
-    ln -sfn "${skill_dir%/}" "$target"
-    echo "  Linked skill: $skill_name"
-  fi
-done
-
-# Symlink pi-specific skill overrides (force-replace shared versions)
-echo "Linking Pi-specific skill overrides..."
-for skill_dir in $DOTFILES_PATH/ai/work/pi/skills/*/; do
-  [ -d "$skill_dir" ] || continue
-  skill_name=$(basename "$skill_dir")
-  link_with_backup "${skill_dir%/}" "$PI_DIR/skills/$skill_name"
-  echo "  Overrode skill: $skill_name"
-done
-
-# Symlink agent definitions for Pi subagent tool
-echo "Linking Pi agents..."
-mkdir -p "$PI_DIR/agents"
-for agent_file in $DOTFILES_PATH/ai/work/pi/agents/*.md; do
-  [ -f "$agent_file" ] || continue
-  agent_name=$(basename "$agent_file")
-  target="$PI_DIR/agents/$agent_name"
-  ln -sf "$agent_file" "$target"
-  echo "  Linked agent: $agent_name"
-done
-
-# Symlink CLAUDE.md as AGENTS.md for Pi
-echo "Linking Pi AGENTS.md..."
-link_with_backup "$DOTFILES_PATH/ai/work/CLAUDE.md" "$PI_DIR/AGENTS.md"
-
-echo "Linking Pi settings..."
-for config_file in settings.json models.json; do
-  link_with_backup "$DOTFILES_PATH/ai/work/pi/${config_file/settings.json/settings.defaults.json}" "$PI_DIR/$config_file"
-done
-
-echo "Linking shop-pi-fy extensions and skills..."
-SHOP_PI_FY="$PI_DIR/git/github.com/shopify-playground/shop-pi-fy"
-if [ -d "$SHOP_PI_FY" ]; then
-  mkdir -p "$PI_DIR/extensions"
-  for extension in adversarial-review agent-teams ask dev-open memory no-sleep-while-working notify retitle session-dump tree voice web-search world; do
-    link_with_backup "$SHOP_PI_FY/extensions/$extension" "$PI_DIR/extensions/$extension"
-  done
-  for skill in chrome-devtools code-review data-portal; do
-    link_with_backup "$SHOP_PI_FY/skills/$skill" "$PI_DIR/skills/$skill"
-  done
-else
-  echo "  Skipped: shop-pi-fy isn't installed yet. Start pi once, then rerun install.sh"
-fi
-
-echo "Linking Pi prompts..."
-mkdir -p "$PI_DIR/prompts"
-for prompt_file in $DOTFILES_PATH/ai/work/pi/prompts/*.md; do
-  [ -f "$prompt_file" ] || continue
-  prompt_name=$(basename "$prompt_file")
-  target="$PI_DIR/prompts/$prompt_name"
-  if [ -L "$target" ] && [ ! -e "$target" ]; then
-    # Dangling symlink — overwrite
-    ln -sf "$prompt_file" "$target"
-    echo "  Fixed dangling: $prompt_name"
-  elif [ -e "$target" ]; then
-    echo "  Skipped (already exists): $prompt_name"
-  else
-    ln -sf "$prompt_file" "$target"
-    echo "  Linked prompt: $prompt_name"
-  fi
-done
-
-echo "Pi Coding Agent configuration complete!"
-
-# Step 14: Set up Quick Demo CLI
-print_section "Setting up Quick Demo CLI"
-echo "Installing demo launcher for quick.shopify.io demos"
-chmod +x $DOTFILES_PATH/quick-demo/install.sh
-$DOTFILES_PATH/quick-demo/install.sh
 
 # Post-install verification
 print_section "Verifying Installation"
@@ -448,12 +342,12 @@ verify_fail=0
 
 check_pass() {
   echo -e "  \033[0;32m✓\033[0m $1"
-  ((verify_pass++))
+  ((verify_pass+=1))
 }
 
 check_fail() {
   echo -e "  \033[0;31m✗\033[0m $1"
-  ((verify_fail++))
+  ((verify_fail+=1))
 }
 
 # Check symlinks
@@ -477,7 +371,9 @@ done
 # Check CLI tools
 echo ""
 echo "CLI Tools:"
-for cmd in fzf starship eza bat fd zoxide atuin lazygit btop gum demo; do
+cli_tools=(fzf starship eza bat fd zoxide atuin lazygit btop)
+if [ "$DOTFILES_MACHINE_PROFILE" = work ]; then cli_tools+=(gum demo); fi
+for cmd in "${cli_tools[@]}"; do
   if command -v "$cmd" &>/dev/null; then
     check_pass "$cmd"
   else
