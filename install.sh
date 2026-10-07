@@ -41,12 +41,13 @@ source "$DOTFILES_PATH/scripts/profile.sh"
 dotfiles_select_profile "$reconfigure"
 echo "Machine profile: $DOTFILES_MACHINE_PROFILE"
 command -v python3 >/dev/null || { echo 'python3 is required for AI setup.' >&2; exit 1; }
-# Check conflicts before the full installer can make unrelated changes.
-python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$DOTFILES_MACHINE_PROFILE" --check "${ai_args[@]}"
+# AI-only setup performs its own preflight; don't print its plan twice.
 if [ "$ai_only" = 1 ]; then
   python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$DOTFILES_MACHINE_PROFILE" "${ai_args[@]}"
   exit 0
 fi
+# Check conflicts before the full installer can make unrelated changes.
+python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$DOTFILES_MACHINE_PROFILE" --check "${ai_args[@]}"
 
 # Print section headers in a consistent, visible format
 print_section() {

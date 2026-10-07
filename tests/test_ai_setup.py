@@ -205,7 +205,17 @@ class AISetupTests(unittest.TestCase):
         self.profile("personal")
         result = self.installer()
         self.assertNotIn("Choice:", result.stdout)
+        self.assertEqual(result.stdout.count("Machine: personal; Pi directory:"), 1)
         self.assertFalse((self.home / ".pi/agent-shopify").exists())
+
+    def test_installer_dry_run_prints_once_without_changes(self):
+        self.profile("personal")
+        self.write(".pi/agent/skills/mermaid/SKILL.md", "independent copy")
+        before = self.snapshot()
+        result = self.installer("--dry-run")
+        self.assertEqual(result.stdout.count("Machine: personal; Pi directory:"), 1)
+        self.assertEqual(result.stdout.count("Conflict (backup required):"), 1)
+        self.assertEqual(before, self.snapshot())
 
     def test_missing_role_noninteractive_refuses(self):
         before = self.snapshot()
