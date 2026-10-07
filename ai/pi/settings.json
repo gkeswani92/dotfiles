@@ -1,0 +1,61 @@
+{
+  "compaction": {
+    "modelOverrides": {
+      "anthropic/claude-opus-5-5": {
+        "reserveTokens": 65536
+      }
+    }
+  },
+  "defaultModel": "claude-opus-5-5",
+  "defaultProvider": "anthropic",
+  "defaultThinkingLevel": "max",
+  "hideThinkingBlock": true,
+  "lastChangelogVersion": "1.0.0",
+  "npmCommand": [
+    "pnpm",
+    "--config.node-version=22.22.2"
+  ],
+  "packages": [
+    {
+      "extensions": [
+        "-extensions/checkout-command/index.ts",
+        "extensions/dev-open/index.ts",
+        "-extensions/gworkspace/index.ts",
+        "extensions/notify/index.ts",
+        "-extensions/perplexity-research/index.ts",
+        "-extensions/publish-session/index.ts",
+        "extensions/retitle/index.ts",
+        "-extensions/slack-tui/index.ts",
+        "-extensions/web-search/index.ts",
+        "-extensions/incidents/index.ts",
+        "extensions/investigator/index.ts",
+        "extensions/memory/index.ts",
+        "extensions/no-sleep-while-working/index.ts",
+        "-extensions/output-guard/index.ts",
+        "-extensions/prefer-graphite/index.ts",
+        "extensions/voice/index.ts",
+        "extensions/world/index.ts",
+        "extensions/agent-teams/index.ts",
+        "extensions/subagent/index.ts",
+        "extensions/pkg/index.ts",
+        "extensions/agent-shell-env/index.ts",
+        "extensions/pr-status/index.ts",
+        "-extensions/auto-lint/index.ts",
+        "extensions/background-jobs/index.ts",
+        "-extensions/bash-guard/index.ts",
+        "-extensions/buildkite/index.ts",
+        "-extensions/chrome-devtools/index.ts",
+        "-extensions/data-portal/index.ts",
+        "-extensions/experiments/index.ts",
+        "-extensions/grokt/index.ts",
+        "extensions/loop-scheduler/index.ts",
+        "-extensions/observe/index.ts",
+        "extensions/shell-mode/index.ts",
+        "-extensions/spy/index.ts",
+        "-extensions/vault/index.ts"
+      ],
+      "source": "https://github.com/shopify-playground/shop-pi-fy"
+    }
+  ],
+  "theme": "dark"
+}
