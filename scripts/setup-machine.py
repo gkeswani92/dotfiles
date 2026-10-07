@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 
 MARKER = "# Managed by dotfiles/scripts/setup-machine.py\n"
@@ -53,7 +54,10 @@ def main():
     parser.add_argument("--verify", action="store_true")
     parser.add_argument("--replace-conflicts", action="store_true")
     parser.add_argument("--layouts-only", action="store_true")
+    parser.add_argument("--full-config", action="store_true", help="Also reconcile shared shell/editor config and Git scripts")
     args = parser.parse_args()
+    if args.layouts_only and args.full_config:
+        parser.error("--layouts-only and --full-config are mutually exclusive")
     home = Path.home()
     repo = Path(__file__).resolve().parents[1]
     root = home / ".gitconfig"
@@ -93,6 +97,29 @@ def main():
     links = {zellij / "config.kdl": source / "config.kdl"}
     for name in ("default", "dev") + (("bp-full", "bp-orgs-only") if args.profile == "work" else ()):
         links[zellij / f"layouts/{name}.kdl"] = source / f"layouts/{name}.kdl"
+    if args.full_config:
+        shared = {
+            ".pryrc": "ruby/.pryrc", ".tmux.conf": "terminal/tmux/tmux.conf",
+            ".zshrc": "shell/.zshrc", ".vimrc": "vim/.vimrc",
+            ".config/starship.toml": "terminal/prompt/starship/starship.toml",
+            ".config/atuin/config.toml": "terminal/atuin/config.toml",
+            ".config/nvim/init.lua": "nvim/init.lua", ".config/nvim/lua": "nvim/lua",
+            ".config/nvim/.stylua.toml": "nvim/.stylua.toml",
+        }
+        if sys.platform == "darwin":
+            for editor in ("Code", "Cursor"):
+                for name in ("settings.json", "keybindings.json"):
+                    shared[f"Library/Application Support/{editor}/User/{name}"] = f"vscode/{name}"
+        links.update({home / dest: repo / src for dest, src in shared.items()})
+        links.update({home / f".vim/colors/{p.name}": p for p in sorted((repo / "vim/colors").glob("*.vim"))})
+        if sys.platform == "darwin" and Path("/Applications/iTerm.app").is_dir():
+            presets = home / "Library/Application Support/iTerm2/ColorPresets"
+            links.update({presets / p.name: p for p in sorted((repo / "terminal/themes").glob("*.itermcolors"))})
+        links.update({home / f".local/bin/{p.name}": p for p in sorted((repo / "git/scripts").glob("git-*"))})
+        if sys.platform.startswith("linux") and not shutil.which("bat") and shutil.which("batcat"):
+            links[home / ".local/bin/bat"] = Path(shutil.which("batcat"))
+        if args.profile == "work":
+            links[home / ".local/bin/demo"] = repo / "quick-demo/demo"
     if args.profile == "work":
         for name in ("bp-full", "bp-orgs-only"):
             links[zellij / f"{name}.kdl"] = source / f"layouts/{name}.kdl"
@@ -106,11 +133,17 @@ def main():
                 obsolete.append(path)
                 failures.append(f"Obsolete managed work layout: {path}")
     for path, target in links.items():
+        if not target.exists():
+            raise ValueError(f"Missing configuration source: {target}; no changes made")
+        if path.parent == home / ".local/bin" and not os.access(target, os.X_OK):
+            raise ValueError(f"Git script is not executable: {target}; no changes made")
         if not path.is_symlink() or path.resolve() != target:
             failures.append(f"Missing or incorrect layout/config link: {path}")
             if path.exists() or path.is_symlink():
                 legacy = repo / f"local-development/zellij/{path.name}"
-                if not (path.is_symlink() and path.name in ("bp-full.kdl", "bp-orgs-only.kdl") and path.resolve() == legacy):
+                legacy_copy = (path.parent in (home / ".vim/colors", home / "Library/Application Support/iTerm2/ColorPresets")
+                               and not path.is_symlink() and path.is_file() and path.read_bytes() == target.read_bytes())
+                if not legacy_copy and not (path.is_symlink() and path.name in ("bp-full.kdl", "bp-orgs-only.kdl") and path.resolve() == legacy):
                     conflicts.append(path)
 
     if args.verify:

@@ -37,6 +37,8 @@ To change the machine role, use `./install.sh --config-only --reconfigure-profil
 
 ## Custom Git Scripts
 
+The full installer links executable scripts into `~/.local/bin`, already on the dotfiles shell PATH. No sudo is needed and old `/usr/local/bin` copies are left intact. Independent local command conflicts require explicit backup/replacement.
+
 ### git-cob
 
 Fuzzy branch checkout - uses fzf to interactively select and checkout branches.

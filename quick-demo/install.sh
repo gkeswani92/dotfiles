@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 source "$SCRIPT_DIR/../scripts/profile.sh"
 profile=$(dotfiles_read_profile)
 if [ "$profile" != work ]; then
@@ -28,7 +28,15 @@ else
   echo "⚠️  quick CLI not found (Shopify-only package), skipping..."
 fi
 
-# Symlink demo to /usr/local/bin
-chmod +x "$SCRIPT_DIR/demo"
-ln -sf "$SCRIPT_DIR/demo" /usr/local/bin/demo
-echo "✅ Linked demo → /usr/local/bin/demo"
+# User-owned bin directory; never overwrite an independent local command.
+mkdir -p "$HOME/.local/bin"
+demo_path="$HOME/.local/bin/demo"
+if [ -e "$demo_path" ] || [ -L "$demo_path" ]; then
+  if [ ! -L "$demo_path" ] || ! [ "$demo_path" -ef "$SCRIPT_DIR/demo" ]; then
+    echo "Conflict: $demo_path; use install.sh --replace-conflicts to archive and replace it." >&2
+    exit 1
+  fi
+else
+  ln -s "$SCRIPT_DIR/demo" "$demo_path"
+fi
+echo "✅ Linked demo → $demo_path"

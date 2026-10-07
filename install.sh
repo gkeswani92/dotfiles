@@ -62,10 +62,14 @@ if [ "$ai_only" = 1 ]; then
   exit 0
 fi
 command -v git >/dev/null || { echo 'git is required for machine configuration.' >&2; exit 1; }
+machine_args=("${ai_args[@]}")
+if [ "$config_only" = 0 ]; then machine_args+=(--full-config); fi
 # Preflight both areas before changing either one or installing software.
 if [ "$dry_run" = 0 ]; then
   for setup in setup-machine.py setup-ai.py; do
-    if ! plan=$(python3 "$DOTFILES_PATH/scripts/$setup" --profile "$DOTFILES_MACHINE_PROFILE" --check "${ai_args[@]}"); then
+    check_args=("${ai_args[@]}")
+    if [ "$setup" = setup-machine.py ]; then check_args=("${machine_args[@]}"); fi
+    if ! plan=$(python3 "$DOTFILES_PATH/scripts/$setup" --profile "$DOTFILES_MACHINE_PROFILE" --check "${check_args[@]}"); then
       printf '%s\n' "$plan"
       exit 1
     fi
@@ -77,6 +81,14 @@ if [ "$config_only" = 1 ]; then
   exit 0
 fi
 
+if [[ "$OSTYPE" == "darwin"* ]] && ! command -v brew >/dev/null; then
+  echo 'Homebrew is required for a full macOS installation. Install it first, or use --config-only.' >&2
+  exit 1
+fi
+export PATH="$HOME/.local/bin:$PATH"
+# Install missing packages without updating unrelated Homebrew taps on every rerun.
+export HOMEBREW_NO_AUTO_UPDATE=1
+
 # Print section headers in a consistent, visible format
 print_section() {
   echo ""
@@ -87,35 +99,23 @@ print_section() {
 
 # Step 1: Ensure dotfiles are available locally
 print_section "Setting up dotfiles repository"
-if test -d $DOTFILES_PATH; then
-  echo "Dotfiles already cloned to $DOTFILES_PATH"
-else
-  echo "Cloning dotfiles repository to $DOTFILES_PATH"
-  git clone https://github.com/gkeswani92/dotfiles $DOTFILES_PATH
-fi
+echo "Using existing checkout: $DOTFILES_PATH"
 
 # Step 2: Install and configure Oh-My-Zsh
 print_section "Setting up Zsh with Oh-My-Zsh"
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-  echo "Installing Oh-My-Zsh framework"
-  sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-else
-  echo "Oh-My-Zsh already installed"
-fi
+bash "$DOTFILES_PATH/scripts/setup-oh-my-zsh.sh"
 
 echo "Installing Oh-My-Zsh custom plugins for enhanced functionality"
 ZSH_CUSTOM=${ZSH_CUSTOM:=$HOME/.oh-my-zsh/custom}
-[ ! -d "$ZSH_CUSTOM/plugins/zsh-completions" ] && git clone https://github.com/zsh-users/zsh-completions $ZSH_CUSTOM/plugins/zsh-completions
-[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ] && git clone https://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/zsh-autosuggestions
-[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] && git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
-[ ! -d "$ZSH_CUSTOM/plugins/zsh-history-substring-search" ] && git clone https://github.com/zsh-users/zsh-history-substring-search.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
-[ ! -d "$ZSH_CUSTOM/plugins/fzf-tab" ] && git clone https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fzf-tab
+[ ! -d "$ZSH_CUSTOM/plugins/zsh-completions" ] && git clone https://github.com/zsh-users/zsh-completions "$ZSH_CUSTOM/plugins/zsh-completions"
+[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ] && git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] && git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+[ ! -d "$ZSH_CUSTOM/plugins/zsh-history-substring-search" ] && git clone https://github.com/zsh-users/zsh-history-substring-search.git "$ZSH_CUSTOM/plugins/zsh-history-substring-search"
+[ ! -d "$ZSH_CUSTOM/plugins/fzf-tab" ] && git clone https://github.com/Aloxaf/fzf-tab "$ZSH_CUSTOM/plugins/fzf-tab"
 
 # Step 3: Install Git utilities and custom scripts
 print_section "Setting up Git enhancements"
-echo "Installing custom Git scripts for improved workflows"
-sudo cp -r $DOTFILES_PATH/git/scripts/* /usr/local/bin/
-sudo chmod 755 /usr/local/bin/git-cob /usr/local/bin/git-fixup /usr/local/bin/git-recent  # More secure permissions (rwxr-xr-x)
+echo 'Custom Git scripts will be linked into ~/.local/bin during configuration (no sudo).'
 
 echo "Installing Git tools (interactive rebase, delta for better diffs)"
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -138,7 +138,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else
   # Linux installation using dpkg
   echo "Using dpkg for Linux installations"
-  sudo dpkg -i $DOTFILES_PATH/git/plugins/*.deb
+  sudo dpkg -i "$DOTFILES_PATH"/git/plugins/*.deb
 fi
 
 # Step 4: Install command-line utilities and tools
@@ -149,6 +149,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "  - tmux (terminal multiplexer)"
   echo "  - fzf (fuzzy finder)"
   echo "  - eza (modern ls replacement)"
+  echo "  - bat (syntax-highlighted file viewer)"
   echo "  - git-absorb (automatically create fixup commits)"
   echo "  - zellij (terminal multiplexer)"
   echo "  - fd (fast file search)"
@@ -163,6 +164,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   brew_install_if_needed tmux
   brew_install_if_needed fzf
   brew_install_if_needed eza
+  brew_install_if_needed bat
   brew_install_if_needed git-absorb
   brew_install_if_needed zellij
   brew_install_if_needed fd
@@ -178,6 +180,7 @@ else
   sudo apt-get install -y tmux
   sudo apt-get install -y fzf
   sudo apt-get install -y exa
+  sudo apt-get install -y bat
   sudo apt install -y git-absorb
   sudo apt install -y fd-find
   sudo apt install -y btop
@@ -201,9 +204,7 @@ fi
 
 # Step 5: Set up Vim configuration
 print_section "Setting up Vim"
-echo "Installing Vim color schemes and plugins"
-mkdir -p $HOME/.vim/colors
-cp $DOTFILES_PATH/vim/colors/* $HOME/.vim/colors/
+echo 'Vim color schemes will be reconciled safely during configuration.'
 
 # Step 5b: Set up Neovim with LazyVim
 print_section "Setting up Neovim"
@@ -219,98 +220,28 @@ else
   }
 fi
 
-echo "Linking Neovim configuration (LazyVim)..."
-mkdir -p $HOME/.config/nvim
-
-# Check if symlinks already point to our dotfiles
-if [ -L "$HOME/.config/nvim/init.lua" ] && [ "$(readlink $HOME/.config/nvim/init.lua)" = "$DOTFILES_PATH/nvim/init.lua" ]; then
-  echo "Neovim symlinks already configured, skipping..."
-else
-  # Backup existing config if it's not empty and not already our symlinks
-  if [ -d "$HOME/.config/nvim" ] && [ "$(ls -A $HOME/.config/nvim 2>/dev/null)" ]; then
-    backup_name="nvim.backup.$(date +%Y%m%d%H%M%S)"
-    echo "Backing up existing nvim config to ~/.config/$backup_name"
-    mv $HOME/.config/nvim $HOME/.config/$backup_name
-    mkdir -p $HOME/.config/nvim
-  fi
-  ln -sf $DOTFILES_PATH/nvim/init.lua $HOME/.config/nvim/init.lua
-  ln -sf $DOTFILES_PATH/nvim/lua $HOME/.config/nvim/lua
-  ln -sf $DOTFILES_PATH/nvim/.stylua.toml $HOME/.config/nvim/.stylua.toml
-  echo "Neovim configured! Run 'nvim' to install plugins automatically."
-fi
-
 # Step 6: Configure terminal aesthetics
 print_section "Enhancing terminal appearance"
 if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "Setting up terminal color schemes"
-  # Check if iTerm2 is installed
-  if [ -d "/Applications/iTerm.app" ]; then
-    # Create the defaults directory if it doesn't exist
-    defaults_dir="$HOME/Library/Application Support/iTerm2/DynamicProfiles"
-    mkdir -p "$defaults_dir"
-
-    # Create ColorPresets directory if it doesn't exist
-    colorpresets_dir="$HOME/Library/Application Support/iTerm2/ColorPresets"
-    mkdir -p "$colorpresets_dir"
-
-    # Copy themes to iTerm2 color presets directory
-    cp $DOTFILES_PATH/terminal/themes/*.itermcolors "$colorpresets_dir/" 2>/dev/null || true
-    echo "Terminal themes installed. Open iTerm2 preferences → Profiles → Colors → Color Presets to apply them."
-  else
-    echo "iTerm2 not found. Themes are available in $DOTFILES_PATH/terminal/themes/ for manual installation."
-  fi
+  echo 'iTerm2 color presets (when installed) will be reconciled safely during configuration.'
 
   # Install developer fonts with ligatures
   echo "Installing programming fonts with ligatures"
-  chmod +x $DOTFILES_PATH/terminal/fonts/install-fonts.sh
-  $DOTFILES_PATH/terminal/fonts/install-fonts.sh
+  bash "$DOTFILES_PATH/terminal/fonts/install-fonts.sh"
 fi
 
 # Step 7: Create symlinks to configuration files
 print_section "Creating configuration symlinks"
 echo "Creating symlinks to connect dotfiles with their expected locations"
 
-# Ensure config directories exist
-mkdir -p ~/.config/zellij/layouts
-mkdir -p ~/.config/atuin
-mkdir -p ~/Library/Application\ Support/Code/User/
-
-# Create all symlinks
-python3 "$DOTFILES_PATH/scripts/setup-machine.py" --profile "$DOTFILES_MACHINE_PROFILE" "${ai_args[@]}"
-ln -sf $DOTFILES_PATH/ruby/.pryrc ~/.pryrc
-ln -sf $DOTFILES_PATH/terminal/tmux/tmux.conf ~/.tmux.conf
-ln -sf $DOTFILES_PATH/shell/.zshrc ~/.zshrc
-ln -sf $DOTFILES_PATH/vim/.vimrc ~/.vimrc
-ln -sf $DOTFILES_PATH/terminal/prompt/starship/starship.toml ~/.config/starship.toml
-ln -sf $DOTFILES_PATH/terminal/atuin/config.toml ~/.config/atuin/config.toml
-
-# Editor settings (macOS only)
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  # VS Code settings
-  VSCODE_DIR="$HOME/Library/Application Support/Code/User"
-  if [ -d "$VSCODE_DIR" ] || mkdir -p "$VSCODE_DIR" 2>/dev/null; then
-    echo "Linking VS Code settings..."
-    ln -sf $DOTFILES_PATH/vscode/settings.json "$VSCODE_DIR/settings.json"
-    ln -sf $DOTFILES_PATH/vscode/keybindings.json "$VSCODE_DIR/keybindings.json"
-  else
-    echo "Couldn't create VS Code settings directory"
-  fi
-
-  # Cursor settings (VS Code fork)
-  CURSOR_DIR="$HOME/Library/Application Support/Cursor/User"
-  if [ -d "$CURSOR_DIR" ] || mkdir -p "$CURSOR_DIR" 2>/dev/null; then
-    echo "Linking Cursor settings..."
-    ln -sf $DOTFILES_PATH/vscode/settings.json "$CURSOR_DIR/settings.json"
-    ln -sf $DOTFILES_PATH/vscode/keybindings.json "$CURSOR_DIR/keybindings.json"
-  else
-    echo "Couldn't create Cursor settings directory"
-  fi
-fi
+# All shared links use the same preflight/backups as profile-dependent config.
+python3 "$DOTFILES_PATH/scripts/setup-machine.py" --profile "$DOTFILES_MACHINE_PROFILE" "${machine_args[@]}"
 
 # Install TPM (Tmux Plugin Manager)
 echo "Setting up Tmux Plugin Manager..."
 if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
-  git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
+  git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
   echo "TPM installed. Start tmux and press prefix + I to install plugins."
 else
   echo "TPM already installed"
@@ -319,24 +250,20 @@ fi
 # Step 8: Install and configure shell prompt
 print_section "Setting up shell prompt"
 echo "Installing Starship prompt for a customized and informative shell experience"
-chmod +x $DOTFILES_PATH/terminal/prompt/starship/install-starship.sh
-$DOTFILES_PATH/terminal/prompt/starship/install-starship.sh
+bash "$DOTFILES_PATH/terminal/prompt/starship/install-starship.sh"
 
 # Step 9: Set up terminal welcome screen
 print_section "Configuring terminal welcome screen"
 echo "Setting up welcome screen with useful information and quotes"
-chmod +x $DOTFILES_PATH/terminal/welcome.sh
 
 # Step 10: Install zoxide for smart directory navigation
 print_section "Setting up zoxide directory jumper"
 echo "Installing zoxide for smarter directory navigation"
-chmod +x $DOTFILES_PATH/terminal/zoxide/install-zoxide.sh
-$DOTFILES_PATH/terminal/zoxide/install-zoxide.sh
+bash "$DOTFILES_PATH/terminal/zoxide/install-zoxide.sh"
 
 # Step 11: Set up enhanced shell history
 print_section "Configuring enhanced shell history"
 echo "Setting up improved history search and deduplication"
-mkdir -p $DOTFILES_PATH/terminal/history
 
 # Step 13: Install only the selected machine's AI resources.
 print_section "Setting up AI resources ($DOTFILES_MACHINE_PROFILE)"
@@ -345,8 +272,7 @@ python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$DOTFILES_MACHINE_PROFIL
 # Step 14: Shopify's demo publisher belongs only on work machines.
 if [ "$DOTFILES_MACHINE_PROFILE" = work ]; then
   print_section "Setting up Quick Demo CLI"
-  chmod +x "$DOTFILES_PATH/quick-demo/install.sh"
-  "$DOTFILES_PATH/quick-demo/install.sh"
+  bash "$DOTFILES_PATH/quick-demo/install.sh"
 fi
 
 # Post-install verification
@@ -382,16 +308,27 @@ for pair in \
   fi
 done
 
-if python3 "$DOTFILES_PATH/scripts/setup-machine.py" --profile "$DOTFILES_MACHINE_PROFILE" --verify; then
+if python3 "$DOTFILES_PATH/scripts/setup-machine.py" --profile "$DOTFILES_MACHINE_PROFILE" --full-config --verify; then
   check_pass "Machine-scoped Git and layouts"
 else
   check_fail "Machine configuration needs attention"
 fi
 
+if python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$DOTFILES_MACHINE_PROFILE" --verify; then
+  check_pass "Machine-scoped AI resources"
+else
+  check_fail "AI configuration needs attention"
+fi
+if [ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]; then
+  check_pass "Oh-My-Zsh framework"
+else
+  check_fail "Oh-My-Zsh framework missing"
+fi
+
 # Check CLI tools
 echo ""
 echo "CLI Tools:"
-cli_tools=(fzf starship eza bat fd zoxide atuin lazygit btop)
+cli_tools=(fzf starship eza bat fd zoxide atuin lazygit btop git-credit)
 if [ "$DOTFILES_MACHINE_PROFILE" = work ]; then cli_tools+=(gum demo); fi
 for cmd in "${cli_tools[@]}"; do
   if command -v "$cmd" &>/dev/null; then
@@ -424,6 +361,11 @@ fi
 
 echo ""
 echo -e "Results: \033[0;32m${verify_pass} passed\033[0m, \033[0;31m${verify_fail} failed\033[0m"
+
+if [ "$verify_fail" -gt 0 ]; then
+  echo 'Installation verification failed. Fix the checks above and rerun; installation is not complete.' >&2
+  exit 1
+fi
 
 # Completion message
 print_section "Installation Complete!"

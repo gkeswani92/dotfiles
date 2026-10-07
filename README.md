@@ -193,7 +193,27 @@ git pull
 python3 -m unittest discover -s tests -v
 ```
 
-Tests use temporary home directories and do not install packages or contact AI providers.
+Tests use temporary home directories. Full installer tests run both machine roles and reruns with mocked package managers and Git clones; no packages are installed and no network/provider calls are made.
+
+### Full Installer Acceptance and Work Migration
+
+The full macOS installer preflights shared shell/editor configs as well as Git, layouts, and AI. Independent conflicting files are not overwritten without `--replace-conflicts`, and replaced resources are archived. Git scripts and the work Demo command use `~/.local/bin` without sudo. Oh-My-Zsh repairs preserve existing custom plugins/themes and do not rewrite `.zshrc`. Existing tools/fonts are skipped; verification failures return a nonzero exit code.
+
+On the personal Mac, the real full installer and a repeat run completed with **22 checks passing**; `doctor.sh` passed all 26 checks. The run repaired an incomplete Oh-My-Zsh installation and installed the previously missing `bat`. Work full-installer control flow is tested offline, not yet on the actual work machine. Linux full installation has not been acceptance-tested.
+
+Before pulling on the work machine, review `git status` and back up current Git/signing preferences and any uncommitted configuration edits. This matters if live config is still a symlink into the old checkout: pulling changes those targets before migration can inspect them. Keep backups outside the checkout; do not discard local edits to make pulling succeed.
+
+After pulling on work:
+
+```bash
+./install.sh --config-only --dry-run   # Choose Work; inspect conflicts and the destination
+./install.sh                         # Choose Work again if the preview did not save a role
+./doctor.sh
+git config --show-origin --get user.email
+git config --show-origin --get user.signingkey
+```
+
+If an older saved profile says Personal, use `--reconfigure-profile` to select Work. If conflicts block installation, inspect them and rerun with `--replace-conflicts` only when you intend to archive and replace them. Verify your work signer against your pre-pull backup; local work signing preferences belong in `~/.config/dotfiles/git/work.local.gitconfig`. Keep Pi credentials/history in their correct work directory; the installer does not infer or move them. Start `pi` to bootstrap the configured work package if absent, then rerun `--ai-only` to add its extra links.
 
 ## 🛠️ Customization
 
