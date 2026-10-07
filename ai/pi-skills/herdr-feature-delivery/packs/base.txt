@@ -1,0 +1,11 @@
+# Knowledge files appended to each role's system prompt by team.sh start.
+# Format: <roles> <path>, where roles is a comma-separated subset of implementer,reviewer,tophatter.
+# Lessons loop: when Gaurav's review teaches a rule that is not captured yet, write the knowledge file, then list it here or in a zone pack.
+implementer,reviewer  ~/.pi/memory/knowledge/design-choice-default.md
+implementer,reviewer  ~/.pi/memory/knowledge/code-comment-conventions.md
+implementer,reviewer  ~/.pi/memory/knowledge/no-rubocop-shaped-code.md
+implementer,reviewer  ~/.pi/memory/knowledge/no-test-only-production-paths.md
+tophatter             ~/.pi/memory/knowledge/pr-manual-testing-evidence.md
+tophatter             ~/.pi/memory/knowledge/manual-pr-testing-evidence.md
+tophatter             ~/.pi/memory/knowledge/pr-testing-sections.md
+tophatter             ~/.pi/memory/knowledge/local-browser-tophat-ownership.md

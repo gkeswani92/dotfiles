@@ -1,0 +1,14 @@
+# Organizations zone (areas/platforms/organizations), including the Completeness Engine.
+# Add with: team.sh up <slug> ... --pack organizations
+implementer,reviewer  ~/.pi/memory/knowledge/organizations-idempotent-operations.md
+implementer,reviewer  ~/.pi/memory/knowledge/organizations-operation-with-errors.md
+implementer,reviewer  ~/.pi/memory/knowledge/organizations-component-graphql-id-conventions.md
+implementer,reviewer  ~/.pi/memory/knowledge/activerecord-string-id-lookup-totality.md
+implementer,reviewer  ~/.pi/memory/knowledge/orchestrator-memoization-convention.md
+implementer,reviewer  ~/.pi/memory/knowledge/completeness-engine-code-style.md
+implementer,reviewer  ~/.pi/memory/knowledge/mocha-once-over-stubs-nondiscriminating.md
+implementer,reviewer  ~/.pi/memory/knowledge/rbi-generation.md
+implementer           ~/.pi/memory/knowledge/organizations-spoom-sigil-ratchet.md
+implementer,tophatter ~/.pi/memory/knowledge/completeness-engine-query-engine-local-testing.md
+tophatter             ~/.pi/memory/knowledge/local-shopkv-keyspace-reset.md
+tophatter             ~/.pi/memory/knowledge/query-engine-protoc-plugin-gotcha.md
