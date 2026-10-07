@@ -25,6 +25,18 @@ print_section() {
   echo "========================================"
 }
 
+DOTFILES_BACKUP="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
+
+link_with_backup() {
+  local source=$1 target=$2
+  if [ -e "$target" ] && [ ! -L "$target" ]; then
+    mkdir -p "$DOTFILES_BACKUP"
+    mv "$target" "$DOTFILES_BACKUP/$(echo "${target#$HOME/}" | tr / _)"
+    echo "  Backed up $target to $DOTFILES_BACKUP"
+  fi
+  ln -sfn "$source" "$target"
+}
+
 # Step 1: Ensure dotfiles are available locally
 print_section "Setting up dotfiles repository"
 if test -d $DOTFILES_PATH; then
@@ -305,11 +317,7 @@ ln -sf $DOTFILES_PATH/ai/CLAUDE.md $HOME/.claude/CLAUDE.md
 echo "Linking Claude Code skills..."
 for skill_dir in $DOTFILES_PATH/ai/skills/*/; do
   skill_name=$(basename "$skill_dir")
-  # ln -sfn only replaces symlinks-to-dirs, not real dirs. Remove real dirs first.
-  if [ -d "$HOME/.claude/skills/$skill_name" ] && [ ! -L "$HOME/.claude/skills/$skill_name" ]; then
-    rm -rf "$HOME/.claude/skills/$skill_name"
-  fi
-  ln -sfn "${skill_dir%/}" "$HOME/.claude/skills/$skill_name"
+  link_with_backup "${skill_dir%/}" "$HOME/.claude/skills/$skill_name"
   echo "  Linked skill: $skill_name"
 done
 
@@ -353,9 +361,7 @@ for skill_dir in $DOTFILES_PATH/ai/skills/*/; do
     ln -sfn "${skill_dir%/}" "$target"
     echo "  Fixed dangling: $skill_name"
   elif [ -d "$target" ] && [ ! -L "$target" ]; then
-    # Real directory (e.g. from shop-pi-fy) — replace with symlink
-    rm -rf "$target"
-    ln -sfn "${skill_dir%/}" "$target"
+    link_with_backup "${skill_dir%/}" "$target"
     echo "  Replaced real dir: $skill_name"
   elif [ -e "$target" ]; then
     echo "  Skipped (already exists): $skill_name"
@@ -370,8 +376,7 @@ echo "Linking Pi-specific skill overrides..."
 for skill_dir in $DOTFILES_PATH/ai/pi-skills/*/; do
   [ -d "$skill_dir" ] || continue
   skill_name=$(basename "$skill_dir")
-  target="$PI_DIR/skills/$skill_name"
-  ln -sfn "${skill_dir%/}" "$target"
+  link_with_backup "${skill_dir%/}" "$PI_DIR/skills/$skill_name"
   echo "  Overrode skill: $skill_name"
 done
 
@@ -388,7 +393,26 @@ done
 
 # Symlink CLAUDE.md as AGENTS.md for Pi
 echo "Linking Pi AGENTS.md..."
-ln -sf "$DOTFILES_PATH/ai/CLAUDE.md" "$PI_DIR/AGENTS.md"
+link_with_backup "$DOTFILES_PATH/ai/CLAUDE.md" "$PI_DIR/AGENTS.md"
+
+echo "Linking Pi settings..."
+for config_file in settings.json models.json; do
+  link_with_backup "$DOTFILES_PATH/ai/pi/$config_file" "$PI_DIR/$config_file"
+done
+
+echo "Linking shop-pi-fy extensions and skills..."
+SHOP_PI_FY="$PI_DIR/git/github.com/shopify-playground/shop-pi-fy"
+if [ -d "$SHOP_PI_FY" ]; then
+  mkdir -p "$PI_DIR/extensions"
+  for extension in adversarial-review agent-teams ask dev-open memory no-sleep-while-working notify retitle session-dump tree voice web-search world; do
+    link_with_backup "$SHOP_PI_FY/extensions/$extension" "$PI_DIR/extensions/$extension"
+  done
+  for skill in chrome-devtools code-review data-portal; do
+    link_with_backup "$SHOP_PI_FY/skills/$skill" "$PI_DIR/skills/$skill"
+  done
+else
+  echo "  Skipped: shop-pi-fy isn't installed yet. Start pi once, then rerun install.sh"
+fi
 
 echo "Linking Pi prompts..."
 mkdir -p "$PI_DIR/prompts"
