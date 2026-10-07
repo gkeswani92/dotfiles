@@ -18,21 +18,29 @@ set -e
 export DOTFILES_PATH=$HOME/dotfiles
 
 ai_only=0
+config_only=0
+dry_run=0
 reconfigure=0
 ai_args=()
 for option in "$@"; do
   case "$option" in
     --ai-only) ai_only=1 ;;
-    --dry-run) ai_only=1; ai_args+=(--dry-run) ;;
+    --config-only) config_only=1 ;;
+    --dry-run) dry_run=1; ai_args+=(--dry-run) ;;
     --replace-conflicts) ai_args+=(--replace-conflicts) ;;
     --reconfigure-profile) reconfigure=1 ;;
     --help|-h)
-      echo 'Usage: ./install.sh [--ai-only] [--dry-run] [--replace-conflicts] [--reconfigure-profile]'
+      echo 'Usage: ./install.sh [--config-only | --ai-only] [--dry-run] [--replace-conflicts] [--reconfigure-profile]'
+      echo '--config-only configures Git, Zellij layouts, and AI without installing software.'
       echo 'The machine role is asked once and stored in ~/.config/dotfiles/profile.'
       exit 0 ;;
     *) echo "Unknown option: $option" >&2; exit 1 ;;
   esac
 done
+if [ "$ai_only" = 1 ] && [ "$config_only" = 1 ]; then
+  echo 'Choose --config-only or --ai-only, not both.' >&2; exit 1
+fi
+if [ "$dry_run" = 1 ] && [ "$ai_only" = 0 ]; then config_only=1; fi
 if [ ! -f "$DOTFILES_PATH/scripts/profile.sh" ]; then
   echo 'Clone the latest dotfiles into ~/dotfiles, then run ./install.sh from the checkout.' >&2
   exit 1
@@ -41,13 +49,33 @@ source "$DOTFILES_PATH/scripts/profile.sh"
 dotfiles_select_profile "$reconfigure"
 echo "Machine profile: $DOTFILES_MACHINE_PROFILE"
 command -v python3 >/dev/null || { echo 'python3 is required for AI setup.' >&2; exit 1; }
-# AI-only setup performs its own preflight; don't print its plan twice.
+# AI-only is a restricted operation, not a separate machine profile.
 if [ "$ai_only" = 1 ]; then
+  if grep -q '^# Managed by dotfiles/scripts/setup-machine.py$' "$HOME/.gitconfig" 2>/dev/null; then
+    git_profile=$(git config --file "$HOME/.gitconfig" --get dotfiles.profile)
+    if [ "$git_profile" != "$DOTFILES_MACHINE_PROFILE" ]; then
+      echo 'Use --config-only --reconfigure-profile to change the machine role consistently across Git and AI.' >&2
+      exit 1
+    fi
+  fi
   python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$DOTFILES_MACHINE_PROFILE" "${ai_args[@]}"
   exit 0
 fi
-# Check conflicts before the full installer can make unrelated changes.
-python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$DOTFILES_MACHINE_PROFILE" --check "${ai_args[@]}"
+command -v git >/dev/null || { echo 'git is required for machine configuration.' >&2; exit 1; }
+# Preflight both areas before changing either one or installing software.
+if [ "$dry_run" = 0 ]; then
+  for setup in setup-machine.py setup-ai.py; do
+    if ! plan=$(python3 "$DOTFILES_PATH/scripts/$setup" --profile "$DOTFILES_MACHINE_PROFILE" --check "${ai_args[@]}"); then
+      printf '%s\n' "$plan"
+      exit 1
+    fi
+  done
+fi
+if [ "$config_only" = 1 ]; then
+  python3 "$DOTFILES_PATH/scripts/setup-machine.py" --profile "$DOTFILES_MACHINE_PROFILE" "${ai_args[@]}"
+  python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$DOTFILES_MACHINE_PROFILE" "${ai_args[@]}"
+  exit 0
+fi
 
 # Print section headers in a consistent, visible format
 print_section() {
@@ -248,27 +276,13 @@ mkdir -p ~/.config/atuin
 mkdir -p ~/Library/Application\ Support/Code/User/
 
 # Create all symlinks
-ln -sf $DOTFILES_PATH/git/.gitconfig ~/.gitconfig
+python3 "$DOTFILES_PATH/scripts/setup-machine.py" --profile "$DOTFILES_MACHINE_PROFILE" "${ai_args[@]}"
 ln -sf $DOTFILES_PATH/ruby/.pryrc ~/.pryrc
 ln -sf $DOTFILES_PATH/terminal/tmux/tmux.conf ~/.tmux.conf
 ln -sf $DOTFILES_PATH/shell/.zshrc ~/.zshrc
 ln -sf $DOTFILES_PATH/vim/.vimrc ~/.vimrc
 ln -sf $DOTFILES_PATH/terminal/prompt/starship/starship.toml ~/.config/starship.toml
 ln -sf $DOTFILES_PATH/terminal/atuin/config.toml ~/.config/atuin/config.toml
-
-# Set up Zellij configuration
-echo "Setting up Zellij configuration..."
-ln -sf $DOTFILES_PATH/terminal/zellij/config.kdl ~/.config/zellij/config.kdl
-if [ "$DOTFILES_MACHINE_PROFILE" = work ]; then
-  ln -sf $DOTFILES_PATH/local-development/zellij/bp-full.kdl ~/.config/zellij/bp-full.kdl
-  ln -sf $DOTFILES_PATH/local-development/zellij/bp-orgs-only.kdl ~/.config/zellij/bp-orgs-only.kdl
-fi
-
-# Link layout files
-for layout in $DOTFILES_PATH/terminal/zellij/layouts/*.kdl; do
-  layout_file=$(basename "$layout")
-  ln -sf "$layout" "$HOME/.config/zellij/layouts/$layout_file"
-done
 
 # Editor settings (macOS only)
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -354,7 +368,6 @@ check_fail() {
 # Check symlinks
 echo "Symlinks:"
 for pair in \
-  "$HOME/.gitconfig:$DOTFILES_PATH/git/.gitconfig" \
   "$HOME/.zshrc:$DOTFILES_PATH/shell/.zshrc" \
   "$HOME/.vimrc:$DOTFILES_PATH/vim/.vimrc" \
   "$HOME/.tmux.conf:$DOTFILES_PATH/terminal/tmux/tmux.conf" \
@@ -368,6 +381,12 @@ for pair in \
     check_fail "$name (missing or dangling)"
   fi
 done
+
+if python3 "$DOTFILES_PATH/scripts/setup-machine.py" --profile "$DOTFILES_MACHINE_PROFILE" --verify; then
+  check_pass "Machine-scoped Git and layouts"
+else
+  check_fail "Machine configuration needs attention"
+fi
 
 # Check CLI tools
 echo ""

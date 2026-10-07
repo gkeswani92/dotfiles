@@ -1,7 +1,4 @@
-[user]
-  name = Gaurav Keswani
-  email = gaurav.keswani@shopify.com
-
+# Shared Git settings. Identity and signing settings are included by ~/.gitconfig.
 [core]
   commitGraph = true
   editor = vim
@@ -16,12 +13,6 @@
 
 [protocol]
   version = 2
-
-[url "https://github.com/Shopify/"]
-  insteadOf = git@github.com:Shopify/
-  insteadOf = git@github.com:shopify/
-  insteadOf = ssh://git@github.com/Shopify/
-  insteadOf = ssh://git@github.com/shopify/
 
 [push]
   default = current
@@ -98,11 +89,6 @@
 [merge]
   conflictstyle = diff3
 
-# Dev related config
-[include]
-	path = /Users/gaurav/.config/dev/gitconfig
-[maintenance]
-	repo = /Users/gaurav/world/git
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f

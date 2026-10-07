@@ -69,7 +69,6 @@ check_symlink() {
   fi
 }
 
-check_symlink "$HOME/.gitconfig" "$DOTFILES_PATH/git/.gitconfig"
 check_symlink "$HOME/.zshrc" "$DOTFILES_PATH/shell/.zshrc"
 check_symlink "$HOME/.vimrc" "$DOTFILES_PATH/vim/.vimrc"
 check_symlink "$HOME/.tmux.conf" "$DOTFILES_PATH/terminal/tmux/tmux.conf"
@@ -105,17 +104,22 @@ else
 fi
 echo ""
 
-# --- Machine-scoped AI resources ---
-echo "AI resources:"
+# --- Machine-scoped configuration ---
+echo "Machine configuration:"
 source "$DOTFILES_PATH/scripts/profile.sh"
 if profile=$(dotfiles_read_profile); then
+  if python3 "$DOTFILES_PATH/scripts/setup-machine.py" --profile "$profile" --verify; then
+    pass "$profile Git identity and Zellij layouts"
+  else
+    fail "Machine configuration needs attention; run ./install.sh --config-only --dry-run"
+  fi
   if python3 "$DOTFILES_PATH/scripts/setup-ai.py" --profile "$profile" --verify; then
     pass "$profile AI resources installed (unselected work resources are not required)"
   else
     fail "$profile AI setup needs attention; run ./install.sh --ai-only --dry-run"
   fi
 else
-  fail "Machine profile missing or invalid; run ./install.sh --ai-only"
+  fail "Machine profile missing or invalid; run ./install.sh --config-only"
 fi
 echo ""
 

@@ -1,12 +1,12 @@
 #!/bin/bash
-# Shared by install.sh and the Pi launcher. The profile file is data, never sourced.
+# Shared machine role for the installer, shell, and tools. Data, never sourced.
 dotfiles_profile_file() { printf '%s\n' "$HOME/.config/dotfiles/profile"; }
 
 dotfiles_read_profile() {
   local file value
   file=$(dotfiles_profile_file)
   if [ ! -f "$file" ]; then
-    echo "No machine profile saved. Run ~/dotfiles/install.sh --ai-only first." >&2
+    echo "No machine profile saved. Run ~/dotfiles/install.sh --config-only first." >&2
     return 1
   fi
   value=$(<"$file")
@@ -24,7 +24,7 @@ dotfiles_pi_dir() {
   esac
 }
 
-# Resolve a choice without saving anything. setup-ai.py saves after successful setup.
+# Resolve a machine choice without saving it. The installer saves after configuration succeeds.
 dotfiles_select_profile() {
   local reconfigure=${1:-0} file current='' choice answer
   file=$(dotfiles_profile_file)
@@ -48,7 +48,7 @@ dotfiles_select_profile() {
     esac
   done
   if [ -n "$current" ] && [ "$current" != "$DOTFILES_MACHINE_PROFILE" ]; then
-    printf 'Change %s to %s? Other Pi profiles and their history will be preserved. Type yes: ' "$current" "$DOTFILES_MACHINE_PROFILE" >&3
+    printf 'Change machine role from %s to %s? Git identity, work integrations, and AI will follow the new role. Other profiles and history are preserved. Type yes: ' "$current" "$DOTFILES_MACHINE_PROFILE" >&3
     if ! IFS= read -r answer <&3 || [ "$answer" != yes ]; then exec 3>&-; return 1; fi
   fi
   exec 3>&-
