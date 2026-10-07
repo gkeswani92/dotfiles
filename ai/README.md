@@ -21,7 +21,7 @@ cd ~/dotfiles
 
 On the first run, select Personal or Work. There is no default. The installer reads the choice from the terminal (not piped script input); cancellation or an invalid saved role makes no changes. Dry-run never saves the answer.
 
-The role is stored outside Git in `~/.config/dotfiles/profile`. Future installer runs read it without asking. After successful setup, start a new shell or run `source ~/.zshrc`.
+The role is stored outside Git in `~/.config/dotfiles/profile`. It is the machine-wide role for Git, shell/work integrations, and AI—not an AI-specific selection. Future installer runs read it without asking. `--ai-only` limits a particular run to AI configuration; `--config-only` configures Git, layouts, and AI without installing software. After successful setup, start a new shell or run `source ~/.zshrc`.
 
 | Role | Active Pi directory | Installed Pi resources |
 |------|---------------------|------------------------|
@@ -33,10 +33,10 @@ Plain `pi` uses `~/.local/bin/pi`, which pins the role's directory, discards an 
 To intentionally change the role:
 
 ```bash
-./install.sh --ai-only --reconfigure-profile
+./install.sh --config-only --reconfigure-profile
 ```
 
-Changing roles requires confirmation. The other Pi directory, authentication, history, memory, and team artifacts are preserved. The role is saved only after AI setup succeeds.
+Changing roles requires confirmation. Once Git is managed, `--ai-only` cannot change the role: use `--config-only` or the full installer so Git and AI remain consistent. The other Pi directory, authentication, history, memory, and team artifacts are preserved. The role is saved only after configuration succeeds.
 
 ## Conflicts, backups, and reruns
 
@@ -83,6 +83,6 @@ python3 scripts/setup-ai.py --profile personal --verify
 
 Tests use temporary home directories and mock Pi binaries; no providers, packages, credentials, or services are contacted. `--verify` is read-only and validates installer-managed resources. It does not reject deliberate extra user-installed personal capabilities.
 
-The full installer gates work Claude setup, Quick Demo installation, and Business Platform Zellij links. Shell startup no longer relinks work Claude resources and loads dev/tec initialization only for work. Existing non-AI work tools/layouts are not silently uninstalled when switching roles.
+The full installer gates work Claude setup, Quick Demo installation, and Business Platform Zellij links. Shell startup no longer relinks work Claude resources and loads dev/tec initialization only for work. Installer-owned work layout links are archived in personal mode; custom layouts and already-installed non-AI tools are not silently uninstalled when switching roles.
 
 This is capability-loading separation, not a filesystem or credential sandbox. Explicit project-local Pi resources, ancestor context files, `~/.agents/skills`, and CLI resource flags can still contribute resources. Avoid opening work repositories for personal sessions if you don't want their project instructions loaded.

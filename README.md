@@ -65,16 +65,33 @@ git clone https://github.com/gkeswani92/dotfiles.git ~/dotfiles && ~/dotfiles/in
    source ~/.zshrc
    ```
 
-### Personal and Work AI Setup
+### Personal and Work Machine Profiles
 
-The first installer run asks whether this is a personal or work machine and saves the choice in `~/.config/dotfiles/profile` (outside Git). Subsequent runs reuse it. Plain `pi` automatically launches the selected setup.
+The first installer run asks whether this is a **personal or work machine** and saves the choice in `~/.config/dotfiles/profile` (outside Git). Subsequent runs reuse it. This is a machine-wide choice, not an AI-only flag.
+
+| Configuration | Personal | Work |
+|---|---|---|
+| Git email | `gauravkeswani92@gmail.com` | `gaurav.keswani@shopify.com` |
+| Git aliases, editor, diff tools | Shared | Shared |
+| Signing settings | Machine-local personal overrides | Machine-local work overrides |
+| Shopify URL rewrites, dev Git include, World maintenance | Not included | Included |
+| dev/tec/Spin shell setup, BP aliases/layouts, Quick Demo installation | Not activated/installed | Enabled |
+| Pi | Personal defaults; Mermaid + Git Context | Work defaults and capabilities |
 
 ```bash
-./install.sh --ai-only --dry-run       # Preview AI setup without changes
-./install.sh --ai-only                 # Install AI resources only
-./install.sh --ai-only --replace-conflicts  # Explicitly back up conflicting copies
-./install.sh --ai-only --reconfigure-profile # Ask again before changing roles
+./install.sh --config-only --dry-run        # Preview profile-dependent configuration
+./install.sh --config-only                  # Configure Git, Zellij, and AI; no software installs
+./install.sh --config-only --replace-conflicts # Archive and replace independent conflicting files
+./install.sh --config-only --reconfigure-profile # Change the machine role consistently
+./install.sh                                # Full installation for the saved machine role
+./install.sh --ai-only                      # Refresh AI only, without changing Git or installing tools
 ```
+
+`--ai-only` restricts an operation, not the scope of personal/work separation. Once Git is managed, changing the role requires `--config-only` or the full installer so Git and AI cannot end up on different roles. Plain `--dry-run` previews profile-dependent configuration; it is not a simulation of package installation.
+
+Live `~/.gitconfig` is now a local include wrapper, not a symlink into Git. Signing settings live in `~/.config/dotfiles/git/{personal,work}.local.gitconfig`; your current personal signing key and signing preference are preserved there. No private keys, authentication credentials, or credential stores are copied. See [Git configuration](git/README.md).
+
+Work-only installer-owned BP layout links are archived when choosing Personal. Independent custom layouts and already-installed software are not deleted; this is configuration separation, not sandboxing. Reload the shell after changes.
 
 Personal Pi has only the shared Mermaid and Git Context skills. Shopify packages, work skills, prompts, instructions, and agents are installed only in work mode. See [AI setup and migration](ai/README.md) for backups, local settings, and work package bootstrapping.
 
@@ -83,10 +100,12 @@ Personal Pi has only the shared Mermaid and Git Context skills. Shopify packages
 ```
 dotfiles/
 ├── ai/                   # Machine-scoped AI resources (shared/personal/work)
-├── scripts/              # Profile selection and safe AI installer
+├── scripts/              # Machine profile selection and safe configuration installers
 ├── tests/                # Offline setup regression tests
 ├── git/                  # Git configuration and scripts
-│   ├── .gitconfig        # Global Git configuration
+│   ├── .gitconfig        # Shared Git settings (no identity or signer)
+│   ├── personal.gitconfig # Personal identity
+│   ├── work.gitconfig    # Work identity and Shopify integrations
 │   ├── plugins/          # Git plugins (delta, interactive rebase)
 │   └── scripts/          # Custom Git scripts
 ├── local-development/    # Local development configurations
@@ -168,7 +187,7 @@ git pull
 ./install.sh
 ```
 
-### Test AI Setup
+### Test Machine Configuration
 
 ```bash
 python3 -m unittest discover -s tests -v

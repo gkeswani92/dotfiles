@@ -5,10 +5,13 @@ This repository contains dotfiles and configuration for various development tool
 
 ## Commands
 - Install from a local checkout: `./install.sh`
-- Preview AI setup: `./install.sh --ai-only --dry-run`
-- Test AI setup offline: `python3 -m unittest discover -s tests -v`
+- Preview profile-dependent configuration: `./install.sh --config-only --dry-run`
+- Configure Git, layouts, and AI without installing software: `./install.sh --config-only`
+- Preview AI only: `./install.sh --ai-only --dry-run`
+- Test machine setup offline: `python3 -m unittest discover -s tests -v`
 - AI resources are scoped under `ai/shared`, `ai/personal`, and `ai/work`; see `ai/README.md`.
-- Machine identity is local data in `~/.config/dotfiles/profile`, never a Git-tracked setting.
+- The machine-wide personal/work role is local data in `~/.config/dotfiles/profile`, never a Git-tracked setting; it controls Git and work integrations as well as AI.
+- Live Git config is a local include wrapper. Signing preferences belong in `~/.config/dotfiles/git/<role>.local.gitconfig`, never tracked config.
 
 ## Code Style Guidelines
 - Shell scripts: Use shebang (`#!/bin/bash`), comments for complex logic
