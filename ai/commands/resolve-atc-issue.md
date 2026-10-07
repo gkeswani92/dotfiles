@@ -34,10 +34,36 @@ description: Search Obsidian vault for ATC issue solutions and debugging steps. 
    - Analyze threads that contain solutions or workarounds
    - Extract common resolution patterns
 
-6. **Present findings** with:
+6. **Automatically resolve maintenance task inputs via Data Portal MCP**: If the runbook's resolution involves running a maintenance task that requires looking up an ID (e.g., `plus_store_addition_approval_id`), **do not** tell the user to run the query manually. Instead:
+   - Extract the relevant identifiers from the Slack thread (e.g., internal shop ID, organization ID, shopify shop ID)
+   - Use the `mcp__data_portal__query_bigquery` tool to run the lookup query against `sdp-ingest-snapshots-prod.business_platform.*` tables
+   - Present the results in a clear table format with all relevant fields
+   - Explicitly state which value to use as the maintenance task input and include the maintenance task URL
+   - **Only if the Data Portal MCP query fails**, fall back to telling the user to run the KateSQL query manually
+
+   Example queries by issue type:
+   - **Re-approving rejected store addition requests**: Query `plus_store_addition_approvals` joined with `store_addition_requests` using the internal shop ID
+     ```sql
+     SELECT psaa.id AS plus_store_addition_approval_id,
+            psaa.store_addition_request_id,
+            psaa.status,
+            psaa.created_at,
+            sar.store_domain,
+            sar.shopify_shop_id
+     FROM `sdp-ingest-snapshots-prod.business_platform.plus_store_addition_approvals` psaa
+     JOIN `sdp-ingest-snapshots-prod.business_platform.store_addition_requests` sar
+       ON psaa.store_addition_request_id = sar.id
+     WHERE sar.shop_id = {internal_shop_id}
+       AND sar.created_at >= '{year}-01-01'
+     ORDER BY psaa.created_at DESC
+     LIMIT 5;
+     ```
+
+7. **Present findings** with:
    - Summary of the Slack thread issue
    - Source of information (Obsidian/GitHub/Slack)
    - Matching runbook(s) or solutions found
+   - Maintenance task inputs (pre-resolved via Data Portal MCP where possible)
    - Additional context or related issues
    - Link to the original Slack thread
 
@@ -66,10 +92,12 @@ Search for information about the following ATC (Around the Clock) issue:
    - Analyze threads that contain solutions or workarounds
    - Extract common resolution patterns
 
-4. **Present the findings** in a clear, actionable format with:
+4. **Automatically resolve maintenance task inputs via Data Portal MCP**: Same as step 6 in the Slack URL flow above — if the resolution involves a maintenance task, query the Data Portal MCP to pre-resolve the required IDs. Only fall back to manual KateSQL instructions if the query fails.
+
+5. **Present the findings** in a clear, actionable format with:
    - Source of information (Obsidian/GitHub/Slack)
    - Diagnosis steps
-   - Resolution steps
+   - Resolution steps with pre-resolved maintenance task inputs where possible
    - When to escalate and to whom
    - Any relevant links or references
 
