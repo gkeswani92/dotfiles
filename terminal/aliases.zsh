@@ -45,7 +45,6 @@ alias fgrep="fgrep --color=auto"
 
 # Git shortcuts
 alias g="git"
-alias gs="git status"
 alias gl="git log --oneline --graph --decorate --all"
 alias gp="git pull"
 alias gcm="git checkout main"
