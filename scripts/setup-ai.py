@@ -56,11 +56,11 @@ def main():
         directory(work / "skills", pi / "skills")
         directory(work / "pi/skills", pi / "skills")
         directory(work / "pi/agents", pi / "agents", ".md")
-        add(work / "CLAUDE.md", pi / "AGENTS.md")
+        add(work / "AGENTS.md", pi / "AGENTS.md")
         directory(shared, home / ".claude/skills")
         directory(work / "skills", home / ".claude/skills")
         directory(work / "commands", home / ".claude/commands", ".md")
-        add(work / "CLAUDE.md", home / ".claude/CLAUDE.md")
+        add(work / "AGENTS.md", home / ".claude/CLAUDE.md")
         add(work / "statusline.sh", home / ".claude/statusline.sh")
         shop = pi / "git/github.com/shopify-playground/shop-pi-fy"
         if shop.exists():
@@ -76,7 +76,7 @@ def main():
         return any(marker in str(source) for marker in (
             "shopify-playground/shop-pi-fy", str(work), str(home / ".pi/agent-shopify"),
             str(repo / "ai/skills"), str(repo / "ai/pi-skills"), str(repo / "ai/prompts"),
-            str(repo / "ai/agents"), str(repo / "ai/CLAUDE.md"), str(repo / "ai/commands"),
+            str(repo / "ai/agents"), str(repo / "ai/CLAUDE.md"), str(repo / "ai/AGENTS.md"), str(repo / "ai/commands"),
             str(repo / "ai/statusline.sh"), str(repo / "ai/pi/"),
         ))
 

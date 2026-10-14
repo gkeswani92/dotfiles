@@ -123,7 +123,7 @@ dotfiles/
 ├── vim/                  # Vim configuration
 │   ├── .vimrc            # Vim configuration
 │   └── colors/           # Vim color schemes
-├── CLAUDE.md             # Instructions for Claude AI assistant
+├── AGENTS.md             # Instructions for AI coding agents
 ├── install.sh            # Main installation script
 └── README.md             # Documentation
 ```

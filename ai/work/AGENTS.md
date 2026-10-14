@@ -1,4 +1,4 @@
-# Global Claude Configuration
+# Global Agent Instructions
 
 ## Behavioral Guidelines
 

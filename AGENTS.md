@@ -1,4 +1,4 @@
-# CLAUDE.md - Guidelines for AI Assistants
+# AGENTS.md - Guidelines for AI Assistants
 
 ## Repository Purpose
 This repository contains dotfiles and configuration for various development tools including shell, git, vim, and tmux.
