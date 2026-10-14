@@ -84,6 +84,11 @@ if [ -d "$HOME/.asdf" ]; then
   go() { _load_asdf && go "$@" }
 fi
 
+# User-local completions (for example, Sentry CLI) must be added before compinit.
+if [[ -d "$HOME/.local/share/zsh/site-functions" ]]; then
+  fpath=("$HOME/.local/share/zsh/site-functions" $fpath)
+fi
+
 # Initialise completions with ZSH's compinit
 autoload -Uz compinit && compinit
 
