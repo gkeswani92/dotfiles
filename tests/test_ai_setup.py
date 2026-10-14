@@ -82,16 +82,22 @@ class AISetupTests(unittest.TestCase):
             _, status = os.waitpid(pid, 0)
         return os.waitstatus_to_exitcode(status), output.decode(errors="replace")
 
-    def test_personal_only_shared(self):
+    def test_personal_shared_and_feature_team(self):
         self.run_setup()
         pi = self.home / ".pi/agent"
-        self.assertEqual(sorted(p.name for p in (pi / "skills").iterdir()), ["git-context", "mermaid"])
-        for name in ("AGENTS.md", "agents", "prompts", "extensions", "git"):
+        self.assertEqual(sorted(p.name for p in (pi / "skills").iterdir()),
+                         ["git-context", "herdr", "herdr-feature-delivery", "mermaid"])
+        self.assertEqual((pi / "skills/herdr-feature-delivery").resolve(),
+                         REPO / "ai/personal/pi/skills/herdr-feature-delivery")
+        self.assertTrue((pi / "prompts/feature-team.md").exists())
+        self.assertEqual(sorted(p.name for p in (pi / "prompts").iterdir()), ["feature-team.md"])
+        for name in ("AGENTS.md", "agents", "extensions", "git"):
             self.assertFalse((pi / name).exists(), name)
         self.assertFalse((self.home / ".claude").exists())
         settings = json.loads((pi / "settings.json").read_text())
         self.assertEqual(settings["defaultProvider"], "openai-codex")
         self.assertEqual(settings["defaultModel"], "gpt-6.1-sol")
+        self.assertEqual(settings["defaultThinkingLevel"], "xhigh")
         self.assertFalse((pi / "models.json").is_symlink())
         models = json.loads((pi / "models.json").read_text())
         self.assertEqual(models["providers"]["openai-codex"]["modelOverrides"]["gpt-6.1-sol"]["contextWindow"], 1050000)
@@ -137,7 +143,7 @@ class AISetupTests(unittest.TestCase):
         self.assertEqual(before, self.snapshot())
 
     def test_local_settings_auth_and_sessions_preserved(self):
-        settings = {"defaultProvider": "openai-codex", "defaultModel": "personal-model", "theme": "light", "custom": True}
+        settings = {"defaultProvider": "openai-codex", "defaultModel": "personal-model", "defaultThinkingLevel": "medium", "theme": "light", "custom": True}
         path = self.write_json(".pi/agent/settings.json", settings)
         auth = self.write(".pi/agent/auth.json", "PRIVATE AUTH SENTINEL")
         session = self.write(".pi/agent/sessions/local/session.jsonl", "PRIVATE SESSION SENTINEL")

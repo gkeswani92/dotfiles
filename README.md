@@ -93,7 +93,7 @@ Live `~/.gitconfig` is now a local include wrapper, not a symlink into Git. Sign
 
 Work-only installer-owned BP layout links are archived when choosing Personal. Independent custom layouts and already-installed software are not deleted; this is configuration separation, not sandboxing. Reload the shell after changes.
 
-Personal Pi has only the shared Mermaid and Git Context skills. Shopify packages, work skills, prompts, instructions, and agents are installed only in work mode. See [AI setup and migration](ai/README.md) for backups, local settings, and work package bootstrapping.
+Personal Pi has shared Mermaid/Git Context skills plus a visible Herdr `/feature-team` workflow with local-only status and human-approved preference lessons. Shopify packages and work-specific resources are installed only in work mode. See [AI setup and migration](ai/README.md) for backups, local settings, and work package bootstrapping.
 
 ## ⚙️ Configuration Structure
 

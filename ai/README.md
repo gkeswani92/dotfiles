@@ -3,11 +3,12 @@
 ## Resource ownership
 
 - `shared/skills`: Mermaid and Git Context, installed into Pi on both machines.
-- `personal/pi`: personal Pi defaults and any future personal-only resources.
+- `shared/lib`: reusable Herdr team runner and terminal-gated lesson persistence helper.
+- `personal/pi`: personal Pi defaults, Herdr skills, `/feature-team`, and tracked personal preference packs.
 - `work/skills`, `work/CLAUDE.md`, `work/commands`, `work/hooks`, and `work/statusline.sh`: work Claude-compatible resources.
 - `work/pi`: work Pi defaults, model overrides, prompts, agents, and Pi-specific skills. These skills take precedence over work Claude-compatible definitions with the same name.
 
-Generic-looking work resources are not automatically shared. Personal currently installs no global instructions, prompts, agents, extensions, or Shopify packages. Work preserves the existing shop-pi-fy filter and extra direct extension links.
+Generic-looking work resources are not automatically shared. Personal installs Herdr and its personal feature-delivery skill/prompt, but no global instructions, agent definitions, installer-managed extensions, or Shopify packages. Herdr's Pi integration is installed separately with `herdr integration install pi`. Work preserves the existing shop-pi-fy filter and extra direct extension links.
 
 ## Installation
 
@@ -72,6 +73,44 @@ On a fresh work profile, settings register shop-pi-fy, but the installer does no
 This adds the extra direct extension/skill links used by the work setup. Missing expected resources in an existing package checkout fail preflight rather than creating broken links.
 
 Herdr's work preference packs still reference work-machine-local `~/.pi/memory/knowledge/` files. Those files are not synced or moved by this installer.
+
+## Personal visible feature team
+
+Install/verify Herdr's Pi integration separately:
+
+```bash
+herdr integration install pi
+herdr integration status
+./install.sh --ai-only
+```
+
+In a Herdr tab containing only the planner, start Pi in the repository:
+
+```bash
+pi --model openai-codex/gpt-6.1-sol --thinking xhigh
+```
+
+Then `/feature-team <feature>`. Planner/reviewer use Sol 6.1 xhigh; implementer/tophatter use Sol 6.1 high. The existing visible layout, nonblocking DONE/BLOCKED coordination, frozen candidates, human gates, local status board, and saved sessions remain. No cross-reviewer, PR/comment/CI watcher, work memory injection, or browser automation is enabled. Browser interaction remains human-owned until explicitly configured.
+
+Personal team artifacts live under `~/.pi/feature-teams/personal/<slug>/`, separate from work teams. Preference packs live in `personal/pi/skills/herdr-feature-delivery/preferences/`; base rules are tracked and contain no work knowledge references.
+
+### Approved lessons
+
+The planner proposes exact wording, rationale, evidence, and scope. Proposals live in the team's `lessons/` directory and do not modify standing preferences. In the reserved shell:
+
+```bash
+$TEAM_SH lesson list
+$TEAM_SH lesson show <id>
+$TEAM_SH lesson approve <id>  # prints the rule and requires typed terminal confirmation
+```
+
+There is no `--yes` flag or automatic approval. The narrowest scope wins:
+
+- **team:** `<team>/preferences.md`;
+- **project:** `<repo>/.pi/preferences/feature-team.md`;
+- **personal:** tracked `personal/pi/skills/herdr-feature-delivery/preferences/learned.md`.
+
+Approval checks that the proposal and target still match what was reviewed. The planner reads the approved file and sends its path to live members; new/resumed members load it in their standing context. Preference changes are never committed automatically. This is an explicit human approval workflow, not a sandbox against arbitrary shell execution. Team plans/reports/ledger/session files provide continuity without a memory extension.
 
 ## Verification
 
