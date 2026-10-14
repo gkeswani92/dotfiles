@@ -25,6 +25,16 @@ Then give the details your role file and the assignment ask for. After writing t
 
 If you are blocked, or a product, contract, or design choice is ambiguous, report BLOCKED with the options and your recommendation. Do not guess, and do not decide it silently. When one option is the correct design, recommend it even if it costs more churn.
 
+## Long-running commands
+
+A command that runs much longer than it should has almost always gone bad: a socket to a service that isn't there, a lock, or an interactive prompt nobody can answer. Treat silence as a failure signal, not as progress.
+
+- Before starting anything slow (a test suite, `dev up`, a generator, a migration), know roughly how long it should take. Run it with `bg_run` and a log file, never as one blocking call.
+- Never block on `bg_wait` for more than 5 minutes at a time. Between waits, check that the log is growing or the process is using CPU (`ps -o etime,time,stat -p <pid>`).
+- If a command has made no visible progress for 5 minutes, or is past twice its expected time, diagnose it at once: `ps`, `lsof -nP -p <pid>` (look for SYN_SENT sockets and locks), `sample <pid>` on macOS. Then kill your own process and report what it was stuck on. Don't wait for the planner to notice.
+- Never relaunch the same hanging command hoping it passes. Fix the cause, or report BLOCKED with the evidence.
+- The status board pings the planner with `STALL` when one of your processes has run 10 minutes with no CPU for 5. If the planner forwards one to you, stop and diagnose before anything else.
+
 ## Boundaries
 
 - Never commit, amend, rebase, stash, reset, push, create or edit PRs or issues, post comments, trigger CI, deploy, or merge. Never change git configuration.

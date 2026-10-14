@@ -41,14 +41,16 @@ Planner commands
   up <slug> --worktree DIR [--title TEXT] [--base SHA] [--pack NAME]...
             [--model ROLE=PROVIDER/ID:THINKING]... [--pane PLANNER_PANE] [--allow-dirty]
       Build the planner/implementer/reviewer/tophatter/shell/status layout around the planner pane.
-      Rerunning up for an existing slug reuses its folder, base, packs, sessions, and watched PR.
+      Rerunning up for an existing slug reuses its folder, base, packs, sessions, and watched PRs.
   start <role> [--resume]           Start implementer, reviewer, or tophatter with its model and context.
   send <role> <message>             Prompt a role and return once it is working. Never waits for completion.
   freeze <round>                    Save the worktree diff against base as candidate rN.
   verify <round> [--ref REF] [--base SHA]
                                     Check that REF's committed diff is byte-identical to candidate rN.
-  pr <number|url> [--delta]         Point the status pane at the published PR. Gitstream by default;
-                                    a delta.shopify.io URL or --delta selects a Delta PR.
+  pr <number|url> [--delta] [--drop]
+                                    Add a published PR to the status pane's watch list; earlier PRs in the
+                                    stack stay watched. Gitstream by default; a delta.shopify.io URL or
+                                    --delta selects a Delta PR. --drop removes it.
   notify <message> | --clear        Tell Gaurav the planner needs him, or clear the request.
   down [--force] [--keep-shell]     Close the panes up created and keep the team folder.
 
@@ -252,7 +254,9 @@ cmd_up() {
     '{slug: $slug, title: $title, workspace: $workspace, tab: $tab,
       panes: {planner: $planner, implementer: $implementer, reviewer: $reviewer, tophatter: $tophatter, shell: $shell, status: $status},
       worktree: $worktree, root: $root, branch: $branch, base: $base, packs: $packs, models: $models,
-      sessions: ($previous.sessions // {}), pr: ($previous.pr // null),
+      sessions: ($previous.sessions // {}),
+      prs: ($previous.prs // (if $previous.pr then [{number: $previous.pr, provider: ($previous.pr_provider // "gitstream"),
+                                                     repo: ($previous.pr_repo // "shop/world")}] else [] end)),
       created_at: ($previous.created_at // $now), updated_at: $now}' \
     >"$DIR/team.json"
 
@@ -539,9 +543,12 @@ cmd_verify() {
 }
 
 render_board() {
-  local width role pane state states=() latest
-  width=$({ stty size </dev/tty; } 2>/dev/null | cut -d' ' -f2) || true
+  local size width rows role pane state states=() latest
+  size=$({ stty size </dev/tty; } 2>/dev/null) || true
+  rows=${size%% *}
+  width=${size##* }
   [[ "$width" =~ ^[0-9]+$ ]] || width=${COLUMNS:-100}
+  [[ "$rows" =~ ^[0-9]+$ ]] || rows=${LINES:-40}
   local checked=""
   [[ ! -f "$DIR/remote-state.json" ]] || checked=" · remote checked $(jq -r '.checked_at[11:16]' "$DIR/remote-state.json")Z"
   printf '%s (%s)   %s%s\n' "$(field .title)" "$SLUG" "$(date '+%H:%M:%S')" "$checked"
@@ -562,22 +569,19 @@ render_board() {
   printf '%s\n' "${states[0]} · ${states[1]} · ${states[2]} · ${states[3]}"
   latest=$(ls "$DIR/candidates" 2>/dev/null | sed 's/^r//' | sort -n | tail -1)
   [[ -z "$latest" ]] || echo "candidate r$latest $(cut -c1-12 "$DIR/candidates/r$latest/sha256")"
-  local state="$DIR/remote-state.json"
-  [[ ! -f "$state" ]] || jq -r 'select(.sync != null) | .sync
+  local state="$DIR/remote-state.json" prs recent
+  prs=$(team_prs | awk '{print $1}' | jq -R . | jq -sc .)
+  [[ ! -f "$state" ]] || jq -r '(if has("prs") then .local else . end) | select(. != null and .sync != null) | .sync
     | "sync: \(.relation | gsub("_"; " ")) \u00b7 origin \(.origin) \u00b7 local \(.local[0:7]) \u00b7 Delta \(.delta[0:7]) \u00b7 Gitstream \(.gitstream[0:7]) \u00b7 \(.branch)"' \
     "$state" | cut -c1-"$width"
-  if [[ -z "$(field '.pr // empty')" ]]; then
-    :
-  elif [[ ! -f "$state" || "$(jq -r '.pr // empty' "$state")" != "$(field .pr)" ]]; then
-    echo "PR #$(field .pr): first check pending"
-  elif [[ "$(jq -r '.head // empty' "$state")" == "" ]]; then
-    echo "PR #$(field .pr): the PR tools returned no data at $(jq -r '.checked_at[11:16]' "$state")Z; retrying"
-  else
-    jq -r --arg provider "$(field '.pr_provider // "gitstream"')" '"\(if $provider == "delta" then "Delta " else "" end)PR #\(.pr) \(.pr_state // "?") @\((.head // "?")[0:7]) · \(if .ci.sha == null then "CI no data" else "CI \(.ci.ok) ok \(.ci.failed | length) failed \(.ci.pending) pending" end) · Binks \(.binks.state // "?") (\(.binks.outstanding)) · \(.comments | length) comments",
-      (if (.ci.failed | length) > 0 then "  failed: " + (.ci.failed | join(", ")) else empty end)' "$state"
-  fi
+  # Only work teams watch PRs; personal skills ship no board-prs.jq.
+  [[ "$prs" == "[]" ]] ||
+    { cat "$state" 2>/dev/null || echo '{}'; } | jq -r --argjson prs "$prs" -f "$SKILL_DIR/scripts/board-prs.jq" | cut -c1-"$width"
+  recent=$((rows - 7 - $(jq length <<<"$prs")))
+  ((recent <= 6)) || recent=6
+  ((recent >= 2)) || recent=2
   echo "recent:"
-  { grep '^| 20' "$DIR/ledger.md" || true; } | tail -n 6 | sed -E 's/^\| [0-9-]+ ([0-9:]+) \| (.*) \|$/  \1 \2/' | cut -c1-"$width"
+  { grep '^| 20' "$DIR/ledger.md" || true; } | tail -n "$recent" | sed -E 's/^\| [0-9-]+ ([0-9:]+) \| (.*) \|$/  \1 \2/' | cut -c1-"$width"
 }
 
 cmd_status() {
@@ -684,48 +688,187 @@ fetch_delta_view() {
       state: (if $p.merged then "merged" else $p.state end),
       headSha: $p.head.sha,
       headRef: $p.head.ref,
+      title: $p.title, draft: ($p.draft // false), base: $p.base.ref, merge: $p.mergeable_state,
+      reviews: [$r[] | {author: .user.login, state, at: .submitted_at}],
       comments: ([($i + $c)[] | {id: (.id | tostring), author: .user.login, url: .html_url}]
         + [$r[] | {id: ("review-" + (.id | tostring)), author: .user.login, url: .html_url, review: .state}])
     } end'
 }
 
-refresh_remote() {
-  local pr provider worktree root previous branch ci='{}' binks='{}' view='{}' out event planner
-  pr=$(field '.pr // empty')
-  provider=$(field '.pr_provider // "gitstream"')
+CI_FILTER='{sha, checks: [.checks[] | {name, status, required, url}]}'
+BINKS_FILTER='{binks_state, findings: {outstanding: .findings.outstanding}}'
+GITSTREAM_VIEW_FILTER='{
+  author: (.author | if type == "object" then (.login // .name) else . end),
+  state: (if (.xGitstreamStateExtended // "") == "merged" then "merged" else .state end),
+  headSha, headRef, title, draft, base: .baseRef, merge: .mergeableState,
+  comments: ([.comments[]? | {id, author: .authorLogin, url}]
+    + [.reviews[]? | {id: ("review-" + (.id | tostring)), author: (.author | if type == "object" then .login else . end),
+                      url, review: .state}]),
+  reviews: [.reviews[]? | {author: (.author | if type == "object" then .login else . end), state, at: .submittedAt}]}'
+GITSTREAM_INLINE_FILTER='{
+  comments: [.[] | {id: ("inline-" + (.id | tostring)), author: .user.login, url: (.html_url // .url)}],
+  threads: ([.[] | {thread: (.x_gitstream.thread_id // (.id | tostring)), resolved: (.x_gitstream.is_resolved == true),
+                    root: (.in_reply_to_id == null), author: (.user.login // "")}]
+    | group_by(.thread)
+    | map({resolved: any(.[]; .resolved), human: ((map(select(.root)) | first | .author // "") | test("@shopify\\.com$"))})
+    | {open: (map(select(.resolved | not)) | length),
+       open_human: (map(select((.resolved | not) and .human)) | length),
+       total: length})}'
+
+# Watched PRs as "number provider repo" lines in stack order. Teams from before multi-PR watching keep
+# a single top-level pr field instead of the prs list.
+team_prs() {
+  jq -r '(.prs // (if .pr then [{number: .pr, provider: (.pr_provider // "gitstream"), repo: (.pr_repo // "shop/world")}] else [] end))
+    | sort_by(.number | tonumber)[] | "\(.number) \(.provider) \(.repo)"' "$DIR/team.json"
+}
+
+fetch_pr_inputs() {
+  local pr=$1 provider=$2 repo=$3 worktree root ci='{}' binks='{}' view='{}' inline='{}' head
   worktree=$(field .worktree)
   root=$(field .root)
-  previous=$(jq -c . "$DIR/remote-state.json" 2>/dev/null || echo null)
-  if [[ -n "$pr" && "$provider" == delta ]]; then
-    view=$(fetch_delta_view "$(field '.pr_repo // "shop/world"')" "$pr")
-    local head
+  if [[ "$provider" == delta ]]; then
+    view=$(fetch_delta_view "$repo" "$pr")
     head=$(jq -r '.headSha // empty' <<<"$view")
-    [[ -z "$head" ]] || ci=$(fetch_json "$worktree" '{sha, checks: [.checks[] | {name, status, required, url}]}' \
-      /opt/dev/bin/devx ci status --commit "$head" --json)
-    binks=$(fetch_json "$worktree" '{binks_state, findings: {outstanding: .findings.outstanding}}' \
-      /opt/dev/bin/devx binks status "https://delta.shopify.io/$(field '.pr_repo // "shop/world"')/pull/$pr" --json)
-  elif [[ -n "$pr" ]]; then
-    ci=$(fetch_json "$worktree" '{sha, checks: [.checks[] | {name, status, required, url}]}' \
-      /opt/dev/bin/devx ci status --pr "$pr" --json)
-    binks=$(fetch_json "$worktree" '{binks_state, findings: {outstanding: .findings.outstanding}}' \
-      /opt/dev/bin/devx binks status "$pr" --json)
-    view=$(fetch_json "$worktree" '{author: (.author | if type == "object" then (.login // .name) else . end), state, headSha, headRef, comments: [.comments[]? | {id, author: .authorLogin, url}]}' \
-      "${TEAM_GS:-gs}" pr view "$pr" --json --comments)
+    [[ -z "$head" ]] || ci=$(fetch_json "$worktree" "$CI_FILTER" /opt/dev/bin/devx ci status --commit "$head" --json)
+    binks=$(fetch_json "$worktree" "$BINKS_FILTER" /opt/dev/bin/devx binks status "https://delta.shopify.io/$repo/pull/$pr" --json)
+  else
+    ci=$(fetch_json "$worktree" "$CI_FILTER" /opt/dev/bin/devx ci status --pr "$pr" --json)
+    binks=$(fetch_json "$worktree" "$BINKS_FILTER" /opt/dev/bin/devx binks status "$pr" --json)
+    view=$(fetch_json "$worktree" "$GITSTREAM_VIEW_FILTER" "${TEAM_GS:-gs}" pr view "$pr" --json --comments)
+    inline=$(fetch_json "$worktree" "$GITSTREAM_INLINE_FILTER" "${TEAM_GS:-gs}" api "repos/$repo/pulls/$pr/comments?per_page=100")
+    view=$(jq -c --argjson inline "$inline" \
+      'if . == {} or $inline == {} then . else .comments += $inline.comments | .threads = $inline.threads end' <<<"$view")
   fi
-  branch=$(jq -r '.headRef // empty' <<<"$view")
-  [[ -n "$branch" ]] || branch=$(jq -r 'if .pr == $pr then (.head_ref // empty) else empty end' --arg pr "$pr" <<<"$previous")
-  [[ -n "$branch" ]] || branch=$(git -C "$root" rev-parse --abbrev-ref HEAD 2>/dev/null || true)
-  out=$(jq -n -f "$SKILL_DIR/scripts/pr-watch.jq" --arg pr "$pr" --arg provider "$provider" --arg now "$(date -u +%FT%TZ)" \
-    --argjson ci "$ci" --argjson binks "$binks" --argjson view "$view" \
-    --argjson sync "$(sync_state "$root" "$branch")" --argjson prev "$previous") || { warn "remote refresh failed"; return 0; }
-  jq '.state' <<<"$out" >"$DIR/remote-state.json"
-  planner=$(field .panes.planner)
-  while IFS= read -r event; do
-    [[ -n "$event" ]] || continue
+  jq -cn --argjson ci "$ci" --argjson binks "$binks" --argjson view "$view" \
+    --argjson sync "$(sync_state "$root" "$(jq -r '.headRef // empty' <<<"$view")")" \
+    '{ci: $ci, binks: $binks, view: $view, sync: $sync}'
+}
+
+# Refreshes every watched PR in parallel, plus Delta/Gitstream sync for the local branch when no PR
+# covers it, then pings the planner once with every change.
+refresh_remote() {
+  local previous now root tmp n provider repo prev out event label branch heads local_sync planner message entry
+  local order=() events=() states='{}' local_state=null
+  previous=$(jq -c . "$DIR/remote-state.json" 2>/dev/null || echo null)
+  now=$(date -u +%FT%TZ)
+  root=$(field .root)
+  tmp=$(mktemp -d)
+  while read -r n provider repo; do
+    [[ -n "$n" ]] || continue
+    order+=("$n|$provider")
+    prev=$(jq -c --arg n "$n" '.prs[$n]? // (if .pr? == $n then . else null end)' <<<"$previous")
+    [[ "$(jq -r '.pr_state // empty' <<<"$prev")" =~ ^(merged|closed)$ ]] ||
+      fetch_pr_inputs "$n" "$provider" "$repo" >"$tmp/$n.json" &
+  done < <(team_prs)
+  branch=$(git -C "$root" rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+  sync_state "$root" "$branch" >"$tmp/local-sync.json" &
+  wait
+  for entry in ${order[@]+"${order[@]}"}; do
+    n=${entry%%|*}
+    provider=${entry#*|}
+    prev=$(jq -c --arg n "$n" '.prs[$n]? // (if .pr? == $n then . else null end)' <<<"$previous")
+    out=""
+    if [[ -s "$tmp/$n.json" ]]; then
+      out=$(jq -n -f "$SKILL_DIR/scripts/pr-watch.jq" --arg pr "$n" --arg provider "$provider" --arg now "$now" \
+        --argjson ci "$(jq -c .ci "$tmp/$n.json")" --argjson binks "$(jq -c .binks "$tmp/$n.json")" \
+        --argjson view "$(jq -c .view "$tmp/$n.json")" --argjson sync "$(jq -c .sync "$tmp/$n.json")" \
+        --argjson prev "$prev") || warn "remote refresh failed for PR #$n"
+    fi
+    if [[ -z "$out" ]]; then
+      [[ "$prev" == null ]] || states=$(jq -c --arg n "$n" --argjson s "$prev" '.[$n] = $s' <<<"$states")
+      continue
+    fi
+    states=$(jq -c --arg n "$n" --argjson s "$(jq -c .state <<<"$out")" '.[$n] = $s' <<<"$states")
+    label="pr #$n"
+    [[ "$provider" != delta ]] || label="delta pr #$n"
+    while IFS= read -r event; do
+      [[ -z "$event" ]] || events+=("$label: $event")
+    done < <(jq -r '.events[]' <<<"$out")
+  done
+  heads=$(jq -r '[.[].head_ref // empty] | join(" ")' <<<"$states")
+  if [[ -n "$branch" && " $heads " != *" $branch "* ]]; then
+    local_sync=$(cat "$tmp/local-sync.json" 2>/dev/null || true)
+    [[ -n "$local_sync" ]] || local_sync='{}'
+    prev=$(jq -c 'if . == null then null elif has("prs") then .local elif (.pr // null) == null then . else null end' <<<"$previous")
+    out=$(jq -n -f "$SKILL_DIR/scripts/pr-watch.jq" --arg pr "" --arg provider gitstream --arg now "$now" \
+      --argjson ci '{}' --argjson binks '{}' --argjson view '{}' --argjson sync "$local_sync" --argjson prev "$prev") || out=""
+    if [[ -n "$out" ]]; then
+      local_state=$(jq -c .state <<<"$out")
+      while IFS= read -r event; do
+        [[ -z "$event" ]] || events+=("$event")
+      done < <(jq -r '.events[]' <<<"$out")
+    fi
+  fi
+  rm -rf "$tmp"
+  jq -n --arg now "$now" --argjson prs "$states" --argjson local "$local_state" \
+    '{checked_at: $now, prs: $prs, local: $local}' >"$DIR/remote-state.json"
+  ((${#events[@]})) || return 0
+  for event in "${events[@]}"; do
     ledger "Status: $event"
-    "$HERDR" agent prompt "$planner" "STATUS ${pr:+${provider/gitstream/} pr #$pr: }$event" >/dev/null 2>&1 ||
-      warn "could not ping the planner: $event"
-  done < <(jq -r '.events[]' <<<"$out")
+  done
+  if ((${#events[@]} == 1)); then
+    message="STATUS ${events[0]}"
+  else
+    message="STATUS ${#events[@]} updates: $(printf '%s | ' "${events[@]}")"
+    message=${message% | }
+  fi
+  planner=$(field .panes.planner)
+  "$HERDR" agent prompt "$planner" "$message" >/dev/null 2>&1 || warn "could not ping the planner: $message"
+}
+
+# A command an agent started that has run for TEAM_STALL_MINUTES and used almost no CPU in the last
+# TEAM_STALL_IDLE_MINUTES is almost always hung (a socket to a missing service, a lock, a prompt).
+# Only leaf processes count (a wrapper shell idles while its child works). Long-lived servers and
+# zombies are skipped, including servers whose process retitles itself (the parent command is
+# checked too). Ping the planner once per stalled process.
+check_stalls() {
+  local state="$DIR/stall-state.tsv" now roots="" role pane pid planner line
+  local min_age=$((${TEAM_STALL_MINUTES:-10} * 60)) idle=$((${TEAM_STALL_IDLE_MINUTES:-5} * 60))
+  local skip=${TEAM_STALL_SKIP:-'^[^ ]*(^|/)(tee|head|tail|cat|grep|rg|sed|awk|wc|sort|uniq|cut|tr|less|jq)( |$)|(^|/)pi( |$)|pi-coding-agent|caffeinate|sleep |tail -f|puma|rails s(erver)?( |$)|sidekiq|hedwig|worker|consumer|enqueuer|[Hh]andling .*jobs|overmind|postgres|mysqld|tarantool|kafka|envoy|kv-router|redis-server|sandbox|(^|/| )daemon( |$)|query-engine'}
+  now=$(date +%s)
+  planner=$(field .panes.planner)
+  for role in implementer reviewer tophatter; do
+    pane=$(field ".panes.$role // empty")
+    [[ -n "$pane" ]] || continue
+    pid=$("$HERDR" pane process-info --pane "$pane" 2>/dev/null |
+      jq -r '[.result.process_info.foreground_processes[]? | select(.argv0 == "pi") | .pid][0] // empty')
+    [[ -n "$pid" ]] && roots+="$role=$pid "
+  done
+  [[ -n "$roots" ]] || return 0
+  touch "$state"
+  ps -axo pid=,ppid=,etime=,time=,command= | awk -v roots="$roots" -v now="$now" -v skip="$skip" '
+    function secs(t,  d, a, p, n, s, i) { d = 0
+      if (t ~ /-/) { split(t, a, "-"); d = a[1]; t = a[2] }
+      n = split(t, p, ":"); s = 0; for (i = 1; i <= n; i++) s = s * 60 + p[i]; return d * 86400 + s }
+    { pid[$1] = $1; ppid[$1] = $2; age[$1] = $3; cpu[$1] = $4; c = $0; sub(/^ *[0-9]+ +[0-9]+ +[^ ]+ +[^ ]+ +/, "", c); cmd[$1] = c }
+    END {
+      n = split(roots, r, " "); for (i = 1; i <= n; i++) { split(r[i], kv, "="); owner[kv[2]] = kv[1] }
+      for (p in pid) if (cmd[p] !~ /<defunct>/) busy_parent[ppid[p]] = 1
+      for (p in pid) { q = p; who = ""; while (q in ppid && q != 1) { if (q in owner && q != p) { who = owner[q]; break } q = ppid[q] }
+        if (who == "" || (p in busy_parent) || cmd[p] ~ /<defunct>/ || cmd[p] ~ skip || cmd[ppid[p]] ~ skip) continue
+        printf "%s\t%s\t%d\t%.1f\t%s\n", who, p, secs(age[p]), secs(cpu[p]), substr(cmd[p], 1, 160) }
+    }' >"$state.now"
+  # state columns: pid, cpu seconds when first seen idle, epoch when first seen idle, notified flag
+  local next="$state.next"
+  : >"$next"
+  while IFS=$'\t' read -r role pid age cpu cmd; do
+    local prev_cpu prev_at notified
+    prev_cpu="" prev_at="" notified=""
+    read -r prev_cpu prev_at notified < <(awk -F'\t' -v p="$pid" '$1 == p {print $2, $3, $4}' "$state") || true
+    if [[ -z "$prev_at" ]] || awk -v a="$cpu" -v b="$prev_cpu" 'BEGIN{exit !(a - b >= 1)}'; then
+      printf '%s\t%s\t%s\t0\n' "$pid" "$cpu" "$now" >>"$next"
+      continue
+    fi
+    if ((age >= min_age && now - prev_at >= idle)) && [[ "$notified" != 1 ]]; then
+      line="STALL $role: pid $pid has run $((age / 60)) min with no CPU for $(((now - prev_at) / 60)) min, probably hung: $cmd"
+      ledger "$line"
+      "$HERDR" agent prompt "$planner" "$line" >/dev/null 2>&1 || warn "could not ping the planner: $line"
+      notified=1
+    fi
+    printf '%s\t%s\t%s\t%s\n' "$pid" "$prev_cpu" "$prev_at" "${notified:-0}" >>"$next"
+  done <"$state.now"
+  mv "$next" "$state"
+  rm -f "$state.now"
 }
 
 cmd_board() {
@@ -734,17 +877,22 @@ cmd_board() {
   require_herdr
   load_team "$team"
   local every=${TEAM_BOARD_SECONDS:-30} remote_every=${TEAM_BOARD_PR_SECONDS:-180} last=0 watched="" pr now
+  local stall_every=${TEAM_STALL_CHECK_SECONDS:-60} last_stall=0
   if [[ "$FEATURE_TEAM_PROFILE" == work && "${TEAM_GS:-}" == /* ]]; then
     PATH="$(dirname "$TEAM_GS"):$PATH"
     export PATH
   fi
   while true; do
     now=$(date +%s)
-    pr=$(field '.pr // empty')
+    pr=$(team_prs | tr '\n' ' ')
     if [[ "$FEATURE_TEAM_PROFILE" == work ]] && { [[ "$pr" != "$watched" ]] || ((now - last >= remote_every)); }; then
       refresh_remote || true
       last=$now
       watched=$pr
+    fi
+    if [[ "$FEATURE_TEAM_PROFILE" == work ]] && ((now - last_stall >= stall_every)); then
+      check_stalls || warn "stall check failed"
+      last_stall=$now
     fi
     printf '\033[H\033[2J'
     render_board || true
@@ -753,11 +901,12 @@ cmd_board() {
 }
 
 cmd_pr() {
-  local team=${TEAM_SLUG:-} pr="" provider=gitstream repo=shop/world
+  local team=${TEAM_SLUG:-} pr="" provider=gitstream repo=shop/world drop=0
   while (($#)); do
     case "$1" in
       --team) team=$2; shift 2 ;;
       --delta) provider=delta; shift ;;
+      --drop) drop=1; shift ;;
       https://delta.shopify.io/*/pull/*)
         provider=delta
         repo=$(sed -E 's#^https://delta\.shopify\.io/([^/]+/[^/]+)/pull/.*#\1#' <<<"$1")
@@ -768,11 +917,19 @@ cmd_pr() {
       *) pr=${1#\#}; shift ;;
     esac
   done
-  [[ "$pr" =~ ^[0-9]+$ ]] || die "usage: team.sh pr <number|url> [--delta]"
+  [[ "$pr" =~ ^[0-9]+$ ]] || die "usage: team.sh pr <number|url> [--delta] [--drop]"
   load_team "$team"
-  update_team --arg pr "$pr" --arg provider "$provider" --arg repo "$repo" '.pr = $pr | .pr_provider = $provider | .pr_repo = $repo'
-  ledger "Watching $provider PR #$pr"
-  echo "the status pane now watches $provider PR #$pr"
+  local others='(.prs // (if .pr then [{number: .pr, provider: (.pr_provider // "gitstream"), repo: (.pr_repo // "shop/world")}] else [] end))
+    | map(select(.number != $pr))'
+  if ((drop)); then
+    update_team --arg pr "$pr" ".prs = ($others) | del(.pr, .pr_provider, .pr_repo)"
+    ledger "Stopped watching PR #$pr"
+  else
+    update_team --arg pr "$pr" --arg provider "$provider" --arg repo "$repo" \
+      ".prs = ($others) + [{number: \$pr, provider: \$provider, repo: \$repo}] | del(.pr, .pr_provider, .pr_repo)"
+    ledger "Watching $provider PR #$pr"
+  fi
+  echo "the status pane watches:$(team_prs | awk '{printf " #%s", $1}')"
 }
 
 cmd_notify() {

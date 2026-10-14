@@ -2,7 +2,9 @@
 # Inputs: $pr ("" when no PR is watched), $now (ISO-8601 UTC);
 # $ci, $binks, $view (pre-filtered PR JSON, {} when unavailable);
 # $sync (Delta/Gitstream branch tips from team.sh, {} when not applicable);
-# $prev (previous state, or null on the first run).
+# $prev (previous state of this PR, or null on the first run).
+# $view may also carry title, draft, base, merge (mergeable state), reviews, and threads ({open, open_human, total});
+# fields it lacks keep their previous values.
 # $provider ("gitstream" or "delta") selects wording. Only human (@shopify.com) comments ping: Binks findings
 # have their own count, and CI, build, and review bots are noise.
 def failing: .status | IN("failure", "error", "timed_out", "canceled", "cancelled");
@@ -31,6 +33,18 @@ def short: if type == "string" and length == 40 then .[0:7] else . end;
 | ($view.headSha // $ci_now.sha // $pp.head) as $head
 | ($view.headRef // $pp.head_ref) as $head_ref
 | ($view.state // $pp.pr_state) as $pr_state
+| (if $view | has("title") then $view.title else $pp.title end) as $title
+| (if $view | has("draft") then $view.draft else $pp.draft end) as $draft
+| (if $view | has("merge") then $view.merge else $pp.merge end) as $merge
+| (if $view | has("threads") then $view.threads else $pp.threads end) as $threads
+| (if $view.reviews then
+     [$view.reviews[] | select((.author // "") | test("@shopify\\.com$"))
+        | select((.state // "") | ascii_upcase | IN("APPROVED", "CHANGES_REQUESTED", "DISMISSED"))]
+     | group_by(.author) | map(max_by(.at // ""))
+     | {approved: [.[] | select(.state | ascii_upcase == "APPROVED") | .author],
+        changes: [.[] | select(.state | ascii_upcase == "CHANGES_REQUESTED") | .author]}
+   else $pp.reviews end) as $reviews
+| (if $merge == "dirty" then "dirty:\($head)" else null end) as $merge_key
 | ($prev.sync // null) as $ps
 | (if $sync == {} then $ps
    else $sync + {since: (if $ps != null and $ps.delta == $sync.delta and $ps.gitstream == $sync.gitstream
@@ -44,8 +58,10 @@ def short: if type == "string" and length == 40 then .[0:7] else . end;
     state: {
       pr: (if $pr == "" then null else $pr end), checked_at: $now,
       pr_state: $pr_state, head: $head, head_ref: $head_ref, author: $author,
+      title: $title, draft: $draft, merge: $merge, reviews: $reviews, threads: $threads,
       ci: $ci_now, binks: $binks_now, comments: $comments,
       notified_ci: (if $ci_status == "pending" then $pp.notified_ci else $ci_key end),
+      notified_merge: $merge_key,
       sync: $sync_now,
       notified_sync: (if $sync_danger or $sync_stuck then $sync_key
                       elif $sync_now.relation == "in_sync" then null
@@ -58,6 +74,8 @@ def short: if type == "string" and length == 40 then .[0:7] else . end;
          else empty end),
         (if $ci_status == "green" and $ci_key != $pp.notified_ci and ($first | not)
          then "CI GREEN on \($ci_now.sha | short)" else empty end),
+        (if $merge_key != null and $merge_key != $pp.notified_merge
+         then "CONFLICT: \($head | short) has merge conflicts with \($view.base // "its base"); rebase it" else empty end),
         (if $binks_now.outstanding > ($pp.binks.outstanding // 0)
          then "BINKS: \($binks_now.outstanding) outstanding finding(s)" else empty end),
         (if $first then empty
