@@ -112,6 +112,7 @@ class AISetupTests(unittest.TestCase):
         self.assertTrue((pi / "skills/deploy-organizations/references/rollback.md").exists())
         self.assertTrue((pi / "prompts/feature-team.md").exists())
         self.assertTrue((pi / "agents/explorer.md").exists())
+        self.assertEqual((pi / "extensions/fast-mode").resolve(), REPO / "ai/work/pi/extensions/fast-mode")
         self.assertEqual((pi / "skills/mermaid").resolve(), REPO / "ai/shared/skills/mermaid")
         settings = json.loads((pi / "settings.json").read_text())
         self.assertIn("shop-pi-fy", settings["packages"][0]["source"])
@@ -133,7 +134,8 @@ class AISetupTests(unittest.TestCase):
             for name in names:
                 (shop / kind / name).mkdir(parents=True)
         self.run_setup("work")
-        self.assertEqual(len(list((self.home / ".pi/agent-shopify/extensions").iterdir())), len(module.SHOP_EXTENSIONS))
+        linked = sorted(p.name for p in (self.home / ".pi/agent-shopify/extensions").iterdir())
+        self.assertEqual(linked, sorted([*module.SHOP_EXTENSIONS, "fast-mode"]))
         self.run_setup("work", "--verify")
 
     def test_rerun_idempotent(self):

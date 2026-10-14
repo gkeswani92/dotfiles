@@ -56,6 +56,8 @@ def main():
         directory(work / "skills", pi / "skills")
         directory(work / "pi/skills", pi / "skills")
         directory(work / "pi/agents", pi / "agents", ".md")
+        for entry in sorted((work / "pi/extensions").glob("*/index.ts")):
+            add(entry.parent, pi / "extensions" / entry.parent.name)
         add(work / "AGENTS.md", pi / "AGENTS.md")
         directory(shared, home / ".claude/skills")
         directory(work / "skills", home / ".claude/skills")

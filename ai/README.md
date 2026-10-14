@@ -6,7 +6,7 @@
 - `shared/lib`: reusable Herdr team runner and terminal-gated lesson persistence helper.
 - `personal/pi`: personal Pi defaults, Herdr skills, `/feature-team`, and tracked personal preference packs.
 - `work/skills`, `work/AGENTS.md`, `work/commands`, `work/hooks`, and `work/statusline.sh`: work Claude-compatible resources.
-- `work/pi`: work Pi defaults, model overrides, prompts, agents, and Pi-specific skills. These skills take precedence over work Claude-compatible definitions with the same name.
+- `work/pi`: work Pi defaults, model overrides, prompts, agents, extensions (each `extensions/<name>/index.ts` is linked into the Pi extensions directory), and Pi-specific skills. These skills take precedence over work Claude-compatible definitions with the same name.
 
 Generic-looking work resources are not automatically shared. Personal installs Herdr and its personal feature-delivery skill/prompt, but no global instructions, agent definitions, installer-managed extensions, or Shopify packages. Herdr's Pi integration is installed separately with `herdr integration install pi`. Work preserves the existing shop-pi-fy filter and extra direct extension links.
 
