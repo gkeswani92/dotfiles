@@ -73,6 +73,22 @@ When coordinating an implementer and an independent reviewer:
 - Missing duplicated reviewer validation is never a finding.
 - The lead runs or coordinates the final required validation against the exact candidate before publication or team cleanup.
 
+## Slack Thread Replies
+
+When I ask you to draft or revise a reply to a Slack thread, end your turn with a message that contains only the draft, so `/copyslack` copies exactly that text:
+
+- No preamble, headings, notes, or sign-off in that final message, and don't wrap the draft in a code block or quote.
+- Put any context, questions, or change notes in an earlier message, before your last tool call.
+- Still copy the draft with `pbcopy` and verify it as usual; `/copyslack` overwrites that copy with rich text when I run it.
+
+## Searching My Notes (qmd)
+
+qmd indexes my Obsidian vault and Pi memory: meeting notes, 1:1s, design decisions, and project history for CE, DCO, Attestations, DR/DC, Entities, and Trust. In Pi, use the `qmd_query` tool; elsewhere, use the `qq` command. Skip this section if neither is available.
+
+- Search it before design or implementation decisions in those areas, and whenever I ask about past decisions, people, or meetings.
+- Use the `work`, `daily`, and `pi-memory` collections. Search `career` only when I ask.
+- Cite the note you relied on. Notes record what was discussed, not what shipped, so confirm current behavior in code.
+
 ## Organizations Codebase Conventions
 
 - **StatsD**: Always use `BusinessPlatformStatsD.track(` instead of `StatsD.increment` — it adds data tag cleaning.
