@@ -207,3 +207,6 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 unalias pi 2>/dev/null
 function pi() { "$HOME/.local/bin/pi" "$@"; }
+
+# herdr: inside a herdr pane, put the running server's binary on PATH
+[[ -n "$HERDR_BIN_PATH" ]] && export PATH="${HERDR_BIN_PATH:h}:$PATH"
